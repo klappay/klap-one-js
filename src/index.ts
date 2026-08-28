@@ -6,10 +6,16 @@ export type { KlappayOne, KlappayOneConfig, KlappayOneError, PaymentResult } fro
 
 registerKlappayButton()
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => wireExisting())
-} else {
-  wireExisting()
-}
+// Node (SSR/static generation) has no `document` — registerKlappayButton()
+// guards itself against a missing customElements, but wireExisting()/
+// observeNewElements() default to reading `document` as soon as they're
+// called, so the call itself has to be skipped there, not just its args.
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => wireExisting())
+  } else {
+    wireExisting()
+  }
 
-observeNewElements()
+  observeNewElements()
+}

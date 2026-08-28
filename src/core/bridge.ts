@@ -1,8 +1,9 @@
 import type { KlappayOneError, PaymentResult } from './types'
 
 // Mirrors web/src/lib/bridge.ts in klap-one — the canonical wire format
-// is defined once in ONE_ID.md; keep the two in sync manually, there's
-// no shared package between the two repos to enforce it.
+// is defined once in this repo's own docs/protocol.md; keep the two in
+// sync manually, there's no shared package between the two repos to
+// enforce it.
 type BridgeMessage =
   | { type: 'klappay:ready'; requestId: string }
   | { type: 'klappay:resize'; requestId: string; height: number }

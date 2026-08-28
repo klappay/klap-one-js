@@ -34,7 +34,14 @@ function isSize(value: string): value is KlappayButtonSize {
   return (SIZES as string[]).includes(value)
 }
 
-export class KlappayButtonElement extends HTMLElement {
+// Node (SSR/static generation) has no HTMLElement — falling back to a
+// plain class keeps this module importable there. The fallback is never
+// instantiated outside a browser: registerKlappayButton() below skips
+// customElements.define() when customElements itself doesn't exist.
+const KlappayButtonBase: typeof HTMLElement =
+  typeof HTMLElement !== 'undefined' ? HTMLElement : (class {} as unknown as typeof HTMLElement)
+
+export class KlappayButtonElement extends KlappayButtonBase {
   static get observedAttributes(): string[] {
     return ['variant', 'size']
   }
@@ -160,6 +167,7 @@ export class KlappayButtonElement extends HTMLElement {
 }
 
 export function registerKlappayButton(): void {
+  if (typeof customElements === 'undefined') return
   if (!customElements.get(KLAPPAY_BUTTON_TAG)) {
     customElements.define(KLAPPAY_BUTTON_TAG, KlappayButtonElement)
   }
