@@ -21,7 +21,11 @@ build instead).
 - `src/lib/server/create-demo-charge.test.ts` — exercises `createDemoCharge()`
   against a fake `@klappay/node` client.
 - `src/routes/api/charges/+server.ts` — `POST` handler reading `KLAP_API_KEY`/
-  `KLAP_BASE_URL` from `$env/static/private` and calling `createDemoCharge`.
+  `KLAP_BASE_URL` from `$env/dynamic/private` and calling `createDemoCharge`.
+  Dynamic rather than static so this typechecks/builds fine (CI included)
+  even when neither variable is set — `$env/static/private` requires the
+  vars to exist at build time, `$env/dynamic/private` only reads them at
+  request time, same lazy-resolution behavior as the other three examples.
 - `src/routes/+page.svelte` — a "Start checkout" button that fetches
   `/api/charges`, calls `configure({ origin: PUBLIC_KLAP_ONE_ORIGIN })`
   from `@klappay/one`, then renders `<klappay-button charge-id={chargeId}
