@@ -1,12 +1,12 @@
 <script lang="ts">
-import { PUBLIC_KLAP_ONE_ORIGIN } from '$env/static/public'
+import { env } from '$env/dynamic/public'
 import { type KlappayOneError, type PaymentResult, configure } from '@klappay/one'
 
 let chargeId: string | null = null
 let status = ''
 let loading = false
 
-configure({ origin: PUBLIC_KLAP_ONE_ORIGIN })
+configure({ origin: env.PUBLIC_KLAP_ONE_ORIGIN })
 
 async function start() {
   loading = true
