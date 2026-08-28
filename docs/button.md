@@ -107,3 +107,11 @@ Reach for `<klappay-button>` when you want Klappay's own button styling
 matches exactly. Reach for `data-klappay-one` when the button already needs
 to match a design system you don't control from here — your own markup,
 your own CSS, this package only adds the click handler.
+
+## See it running
+
+[Examples](/examples) has both patterns wired to a real backend that
+creates the charge first — the [vanilla example](/examples#vanilla-no-bundler)
+drives a plain button with the [programmatic API](/programmatic) directly,
+and every framework example wires up `<klappay-button>`/`<KlappayButton />`
+end to end.

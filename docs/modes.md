@@ -77,3 +77,10 @@ The iframe starts at a fixed `420×720` and resizes in response to
 `klappay:resize` messages the checkout sends as its own content's height
 changes — you never need to guess a height up front or leave dead
 whitespace around a shorter step in the flow (e.g. an error screen).
+
+## See it running
+
+Every app in [Examples](/examples) uses the default device-based mode
+selection (no `mode` override) — open one on desktop and on a phone (or a
+mobile device emulator) to see the iframe/modal and popup paths side by
+side.

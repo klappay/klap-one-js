@@ -6,6 +6,8 @@ raw `<klappay-button>` Custom Element (there is no Vue-specific wrapper
 package; `@klappay/one` registers `<klappay-button>` as soon as it's
 imported, and it's used directly in the template).
 
+Full API docs: **https://js-one.klappay.com** (this app is also walked through at [/examples#nuxt](https://js-one.klappay.com/examples#nuxt)).
+
 This app is standalone — it is not part of a pnpm workspace, and depends
 on the real, published `@klappay/one` package from npm (see "Testing
 against local unpublished changes" below to point it at this repo's own

@@ -20,6 +20,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Getting started', link: '/getting-started' },
+      { text: 'Examples', link: '/examples' },
       { text: 'npm', link: 'https://www.npmjs.com/package/@klappay/one' },
     ],
 

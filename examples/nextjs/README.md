@@ -8,6 +8,8 @@ Client Component that requests that charge, then renders `@klappay/one/react`'s
 React/Next.js merchant: a typed component instead of hand-rolling
 `createKlappayOne()` and DOM wiring yourself.
 
+Full API docs: **https://js-one.klappay.com** (this app is also walked through at [/examples#next-js-app-router](https://js-one.klappay.com/examples#next-js-app-router)).
+
 This app is standalone — it is not part of a pnpm workspace, and depends on
 the real, published `@klappay/one` package from npm (see "Testing against
 local unpublished changes" below to point it at this repo's own build

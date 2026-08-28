@@ -128,3 +128,10 @@ code or markup.
 two repositories enforcing the two stay in sync, since `one-js` ships to
 npm/a public CDN and `klap-one`'s backend code never should. Any change to
 the wire format has to land in both places deliberately.
+
+## See it running
+
+Every app in [Examples](/examples) creates its `Charge` server-side with
+`@klappay/node`, never exposes `KLAP_API_KEY` to the browser, and only
+ever uses `onSuccess` to update the UI — the same invariants described
+above, applied end to end in a real, running app.

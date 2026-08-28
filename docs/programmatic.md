@@ -120,3 +120,10 @@ Sets the page-wide default `origin`/`locale` that `<klappay-button>` and
 the programmatic API always requires `origin` explicitly, since it has no
 natural attribute to fall back to and no excuse to make a required field
 implicit.
+
+## See it running
+
+The [vanilla example](/examples#vanilla-no-bundler) in [Examples](/examples)
+calls `createKlappayOne()` exactly as shown above, wired to a real backend
+route that creates the charge first — clone it and run it instead of
+copy-pasting the snippets on this page.

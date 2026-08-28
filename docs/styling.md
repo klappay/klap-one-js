@@ -85,3 +85,12 @@ same way you'd style any other button on your page.
   pointer-events: none;
 }
 ```
+
+## See it running
+
+The [vanilla example](/examples#vanilla-no-bundler) renders a plain
+`<button>` you own and style entirely yourself, wired up with
+`createKlappayOne()`; every framework example in [Examples](/examples)
+renders `<klappay-button>`/`<KlappayButton />` with the default
+`variant`/`size` — a good starting point to try overriding the CSS custom
+properties above against a real, running app.

@@ -7,6 +7,8 @@ Svelte template — there's no Svelte-specific wrapper package, since a
 real Custom Element already works natively in every framework's own
 templating.
 
+Full API docs: **https://js-one.klappay.com** (this app is also walked through at [/examples#sveltekit](https://js-one.klappay.com/examples#sveltekit)).
+
 This app is standalone — it is not part of a pnpm workspace, and depends
 on the real, published `@klappay/one` package from npm (see "Testing
 against local unpublished changes" below to point it at this repo's own

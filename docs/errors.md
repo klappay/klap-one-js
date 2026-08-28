@@ -58,3 +58,9 @@ Closing the popup/iframe without completing payment — by any means, see
 [iframe vs. popup](/modes) — fires `onCancel`, never `onError`. There's no
 `code` for "the payer changed their mind"; that's an expected outcome,
 not a failure one.
+
+## See it running
+
+Every app in [Examples](/examples) wires `onError`/`onCancel` to a status
+message in the UI (`"Error: …"` / `"Checkout closed."`) — the same
+minimal pattern shown throughout this page, running against a real charge.

@@ -8,6 +8,8 @@ This is the package's core reason to exist for a merchant with no frontend
 build tooling at all: no bundler, no JSX, no `import` resolution in the
 browser — just `window.KlappayOne`.
 
+Full API docs: **https://js-one.klappay.com** (this app is also walked through at [/examples#vanilla-no-bundler](https://js-one.klappay.com/examples#vanilla-no-bundler)).
+
 This app is standalone — it is not part of a pnpm workspace, and depends
 on the real, published `@klappay/one` package from npm (see "Testing
 against local unpublished changes" below to point it at this repo's own
