@@ -74,8 +74,11 @@ function Checkout() {
 
 ## Documentation
 
-See `ONE_JS_SDK.md` and `ONE_ID.md` in the `klap-one` repository for the
-full protocol and security model this package implements against.
+Full docs, guides, and framework examples: **https://js-one.klappay.com**
+(built from `docs/` in this repository — `docs/getting-started.md` for a
+full walkthrough and `docs/protocol.md` for the popup/iframe embed and
+`postMessage` contract this package implements against). Runnable example
+apps live in [`examples/`](./examples).
 
 ## License
 

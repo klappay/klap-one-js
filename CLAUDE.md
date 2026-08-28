@@ -6,20 +6,19 @@ code — not user-facing documentation (that's `README.md`). This is
 own page — it opens an iframe/modal (desktop, default) or a popup
 (mobile, default — `mode` overrides either way) pointing at `klap-one`'s
 `/id/*` (hosted as `one-id`) and relays the result back via
-`postMessage`. It has no server,
-no database, and never runs OTP/wallet logic itself — see `klap-one`'s
-own `ONE_JS_SDK.md` and `ONE_ID.md` for why the split is drawn exactly
-there. Conventions below are adapted from `../klap-node`'s `CLAUDE.md`
-(itself trimmed from `../klap-core`), further trimmed/extended for a
-browser SDK: no `docs/*.md`/VitePress site yet (a `README.md` is enough
-at this size — add VitePress if that stops being true), and a new
-non-negotiable-invariants section since this runs in a completely
+`postMessage`. It has no server, no database, and never runs OTP/wallet
+logic itself — see this repo's own `docs/protocol.md` for why the split
+is drawn exactly there.
+Conventions below are adapted from `../klap-node`'s `CLAUDE.md` (itself
+trimmed from `../klap-core`), further trimmed/extended for a browser
+SDK, and a new non-negotiable-invariants section since this runs in a
+completely
 different threat model than a package that only ever touches a trusted
 backend's own secrets.
 
 ## Non-negotiable security invariants
 
-These come straight from `klap-one`'s `ONE_JS_SDK.md` — this package
+These come straight from this repo's own `docs/protocol.md` — this package
 never touches a private key or a session token, and any change that
 seems to need one should stop and reconsider the design instead:
 
@@ -42,7 +41,7 @@ seems to need one should stop and reconsider the design instead:
   config option that changes what's inside the popup.
 - **`onSuccess` is a UX signal, never proof of payment.** A merchant's
   real fulfillment must come from Klappay Core's own webhook
-  (`charge.confirmed`), not this callback — see `ONE_JS_SDK.md`'s
+  (`charge.confirmed`), not this callback — see `docs/protocol.md`'s
   dedicated section. Don't design an API that makes the callback look
   like a safe place to release a product.
 - **No `eval`/`Function` over anything from the network.** The button's
@@ -125,8 +124,8 @@ trigger. **Never run or merge those proactively** — they need explicit
 go-ahead every time.
 
 The CDN copy (`js.klappay.com`) is a separate, manual step from the npm
-publish for now — see `klap-one`'s own planning notes on the Coolify
-deploy; nothing here auto-syncs the CDN URL to a new npm version yet.
+publish for now — nothing here auto-syncs the CDN URL to a new npm
+version yet.
 
 ## Parallelize independent work
 

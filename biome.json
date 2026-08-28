@@ -6,7 +6,17 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignore": ["dist", "node_modules"]
+    "ignore": [
+      "dist",
+      "node_modules",
+      "docs/.vitepress/dist",
+      "docs/.vitepress/cache",
+      "examples/*/.next",
+      "examples/*/.nuxt",
+      "examples/*/.output",
+      "examples/*/.svelte-kit",
+      "examples/*/build"
+    ]
   },
   "formatter": {
     "enabled": true,
