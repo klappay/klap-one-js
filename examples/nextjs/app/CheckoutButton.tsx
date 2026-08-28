@@ -43,6 +43,8 @@ export function CheckoutButton() {
       <KlappayButton
         chargeId={chargeId}
         origin={klapOneOrigin}
+        variant="yellow"
+        size="lg"
         onSuccess={(result: PaymentResult) => setStatus(`Paid! tx: ${result.txHash}`)}
         onError={(error: KlappayOneError) => setStatus(`Error: ${error.message}`)}
         onCancel={() => setStatus('Checkout closed.')}
