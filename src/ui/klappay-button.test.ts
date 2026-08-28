@@ -61,6 +61,18 @@ describe('klappay-button', () => {
     expect(el.shadowRoot?.querySelector('button')?.getAttribute('data-variant')).toBe('white')
   })
 
+  it('accepts variant/size via property assignment, not just setAttribute', () => {
+    const el = mount() as HTMLElement & { variant: string; size: string }
+    el.variant = 'yellow'
+    el.size = 'lg'
+
+    const button = el.shadowRoot?.querySelector('button')
+    expect(button?.getAttribute('data-variant')).toBe('yellow')
+    expect(button?.getAttribute('data-size')).toBe('lg')
+    expect(el.getAttribute('variant')).toBe('yellow')
+    expect(el.getAttribute('size')).toBe('lg')
+  })
+
   it('logs an error and does not open when charge-id is missing', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     const el = mount({ origin: 'https://one.klappay.com' })

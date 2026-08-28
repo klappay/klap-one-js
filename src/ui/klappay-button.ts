@@ -74,9 +74,17 @@ export class KlappayButtonElement extends KlappayButtonBase {
     return isVariant(value) ? value : DEFAULT_VARIANT
   }
 
+  set variant(value: KlappayButtonVariant) {
+    this.setAttribute('variant', value)
+  }
+
   get size(): KlappayButtonSize {
     const value = this.getAttribute('size') ?? ''
     return isSize(value) ? value : DEFAULT_SIZE
+  }
+
+  set size(value: KlappayButtonSize) {
+    this.setAttribute('size', value)
   }
 
   #applyVariant(): void {
