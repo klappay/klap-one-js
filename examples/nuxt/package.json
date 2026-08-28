@@ -1,0 +1,27 @@
+{
+  "name": "@klappay/one-example-nuxt",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "typecheck": "nuxt typecheck",
+    "postinstall": "nuxt prepare",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@klappay/node": "^3.4.0",
+    "@klappay/one": "latest",
+    "nuxt": "^4.5.2",
+    "vue": "^3.5.41"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.6.0",
+    "vue-tsc": "^2.1.0",
+    "vitest": "^3.2.6"
+  }
+}

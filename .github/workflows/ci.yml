@@ -34,6 +34,52 @@ jobs:
       - name: Build
         run: pnpm build
 
+  examples:
+    strategy:
+      fail-fast: false
+      matrix:
+        example: [vanilla, nextjs, sveltekit, nuxt]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: examples/${{ matrix.example }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.2.2
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.2.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+
+      # No lockfile is committed under examples/* on purpose — every
+      # example always tracks @klappay/one's "latest" npm dist-tag (see
+      # examples/README.md), so this install doubles as a smoke test of
+      # whatever is actually published right now.
+      - name: Install dependencies
+        run: pnpm install
+
+      # Try the published latest first — when it already has what this
+      # example needs, this is the real smoke test described above, and
+      # nothing below runs. When a change has landed on main but hasn't
+      # been published yet (the normal state between merging a feature
+      # and merging its "Version Packages" PR), typecheck/build/test fail
+      # here for a reason that has nothing to do with this example's own
+      # code — so build @klappay/one from source and link it in, then try
+      # again. If it still fails after that, it's a real bug in the
+      # example.
+      - name: Typecheck, test, and build against published latest, falling back to a local build
+        run: |
+          if pnpm run --if-present typecheck && pnpm run --if-present test && pnpm run --if-present build; then
+            exit 0
+          fi
+          echo "::notice::@klappay/one@latest doesn't satisfy this example yet — falling back to a local build."
+          (cd ../.. && pnpm install --frozen-lockfile && pnpm build)
+          pnpm link ../..
+          pnpm run --if-present typecheck
+          pnpm run --if-present test
+          pnpm run --if-present build
+
   changeset-check:
     if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'changeset-release/')
     runs-on: ubuntu-latest
