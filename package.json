@@ -1,0 +1,72 @@
+{
+  "name": "@klappay/one",
+  "version": "1.0.0",
+  "license": "MIT",
+  "description": "Klappay One's embeddable payment button — opens the hosted identity/wallet popup (one-id) and relays the result via postMessage. Never touches a private key or a session token; framework-agnostic core with a thin React wrapper.",
+  "keywords": ["klap", "klappay", "payments", "crypto", "web3", "widget"],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/klappay/klap-one-js.git"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "type": "module",
+  "sideEffects": ["./dist/index.js", "./dist/index.global.js", "./dist/react/index.js"],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "import": "./dist/react/index.js"
+    }
+  },
+  "files": ["dist", "LICENSE", "README.md"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "rm -rf dist && tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "test": "vitest run",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "pnpm build && changeset publish",
+    "prepare": "husky"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "@changesets/cli": "^2.31.1",
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "@types/node": "^24.13.3",
+    "@types/react": "^18.3.0",
+    "husky": "^9.1.0",
+    "jsdom": "^30.0.1",
+    "lint-staged": "^15.2.0",
+    "react": "^18.3.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.2.6"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@biomejs/biome", "esbuild"]
+  }
+}
