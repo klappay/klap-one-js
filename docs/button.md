@@ -44,15 +44,25 @@ button.addEventListener('cancel', () => console.log('payer closed the checkout')
 ```
 
 A second click before the first checkout settles is ignored — the button
-disables itself (`this.#button.disabled = true`) the moment it opens the
-popup/iframe, and re-enables on whichever of `success`/`error`/`cancel`
-fires first. That's what stops a fast double-click from opening two
-popups/iframes stacked on top of each other.
+disables itself the moment it opens the popup/iframe, and re-enables on
+whichever of `success`/`error`/`cancel` fires first. That's what stops a
+fast double-click from opening two popups/iframes stacked on top of each
+other.
 
-Missing `charge-id` or `origin` (and no [`configure()`](/getting-started#origin-one-way-or-another)
-default) logs a `console.error` and does nothing on click — it never
-throws, so one misconfigured button on a page doesn't take the rest of the
-page down with it.
+The button also renders natively `disabled` whenever `charge-id` is missing
+or `origin` can't be resolved (neither the attribute nor
+[`configure()`](/getting-started#origin-one-way-or-another) set it) —
+reactively, via the same `attributeChangedCallback` that drives
+`variant`/`size`, so it flips to enabled the moment both are set without
+needing to re-render the element. A `configure()` call made *after* the
+element already exists on the page isn't picked up retroactively, though —
+set `origin` before this element is parsed, or as its own attribute, if the
+disabled state needs to react to it live. A click can't reach the button
+while it's in this state (disabled elements don't dispatch `click` at all,
+by spec) — the `console.error`-and-no-op behavior from missing
+`charge-id`/`origin` is a defensive fallback for the rare case something
+still forces the button back to enabled without both actually being set,
+never the primary guard.
 
 ## Your own button: `data-klappay-one`
 

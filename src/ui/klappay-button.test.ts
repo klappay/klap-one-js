@@ -42,6 +42,35 @@ describe('klappay-button', () => {
     expect(button?.getAttribute('data-size')).toBe('md')
   })
 
+  it('renders a decorative logo alongside the label text', () => {
+    const el = mount()
+    const button = el.shadowRoot?.querySelector('button')
+    const img = button?.querySelector('img')
+
+    expect(img?.getAttribute('alt')).toBe('')
+    expect(img?.getAttribute('aria-hidden')).toBe('true')
+    expect(img?.src).toContain('data:image/png;base64,')
+    expect(button?.textContent).toContain('Pay with Klappay')
+  })
+
+  it('swaps the logo image when the variant changes, with a distinct logo per variant', () => {
+    const el = mount({ variant: 'black' })
+    const img = () => el.shadowRoot?.querySelector('button img')
+
+    const blackVariantLogo = img()?.getAttribute('src')
+
+    el.setAttribute('variant', 'yellow')
+    const yellowVariantLogo = img()?.getAttribute('src')
+
+    expect(yellowVariantLogo).not.toBe(blackVariantLogo)
+
+    el.setAttribute('variant', 'white')
+    const whiteVariantLogo = img()?.getAttribute('src')
+
+    expect(whiteVariantLogo).not.toBe(blackVariantLogo)
+    expect(whiteVariantLogo).not.toBe(yellowVariantLogo)
+  })
+
   it('reflects variant/size attributes onto the inner button', () => {
     const el = mount({ variant: 'yellow', size: 'lg' })
     const button = el.shadowRoot?.querySelector('button')
@@ -77,21 +106,63 @@ describe('klappay-button', () => {
     expect(el.getAttribute('size')).toBe('lg')
   })
 
-  it('logs an error and does not open when charge-id is missing', () => {
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+  it('renders disabled when charge-id is missing', () => {
     const el = mount({ origin: 'https://one.klappay.com' })
 
-    el.shadowRoot?.querySelector('button')?.click()
+    expect(el.shadowRoot?.querySelector('button')?.disabled).toBe(true)
+  })
+
+  it('renders disabled when no origin is configured', () => {
+    const el = mount({ 'charge-id': 'ch_123' })
+
+    expect(el.shadowRoot?.querySelector('button')?.disabled).toBe(true)
+  })
+
+  it('renders disabled with neither attribute set', () => {
+    const el = mount()
+
+    expect(el.shadowRoot?.querySelector('button')?.disabled).toBe(true)
+  })
+
+  it('enables reactively once both charge-id and origin end up set', () => {
+    const el = mount()
+    const button = el.shadowRoot?.querySelector('button')
+
+    el.setAttribute('charge-id', 'ch_123')
+    expect(button?.disabled).toBe(true)
+
+    el.setAttribute('origin', 'https://one.klappay.com')
+    expect(button?.disabled).toBe(false)
+  })
+
+  it('enables when origin only comes from the global config', () => {
+    klappayOneModule.configure({ origin: 'https://one.klappay.com' })
+    const el = mount({ 'charge-id': 'ch_123' })
+
+    expect(el.shadowRoot?.querySelector('button')?.disabled).toBe(false)
+  })
+
+  it('logs an error and does not open if clicked while forced enabled without a charge-id', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const el = mount({ origin: 'https://one.klappay.com' })
+    const button = el.shadowRoot?.querySelector('button')
+    // Bypasses the native disabled guard to exercise the defensive fallback
+    // in #handleClick directly — a disabled button ignores .click() entirely.
+    if (button) button.disabled = false
+
+    button?.click()
 
     expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('charge-id'))
     expect(klappayOneModule.createKlappayOne).not.toHaveBeenCalled()
   })
 
-  it('logs an error and does not open when no origin is configured', () => {
+  it('logs an error and does not open if clicked while forced enabled without an origin', () => {
     const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
     const el = mount({ 'charge-id': 'ch_123' })
+    const button = el.shadowRoot?.querySelector('button')
+    if (button) button.disabled = false
 
-    el.shadowRoot?.querySelector('button')?.click()
+    button?.click()
 
     expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('origin'))
     expect(klappayOneModule.createKlappayOne).not.toHaveBeenCalled()
