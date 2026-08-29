@@ -31,22 +31,19 @@ equivalent, e.g. `NEXT_PUBLIC_KLAP_ONE_ORIGIN`) — the Klappay origin
 `@klappay/one` opens. See each example's README for the exact variable
 name it reads.
 
-## `@klappay/one` is always `"latest"`
+## `@klappay/one` is always the local build
 
-Every example depends on `"@klappay/one": "latest"` — the npm dist-tag,
-not a pinned version — on purpose. No `pnpm-lock.yaml` is committed under
-`examples/*` either. That means every `pnpm install` here re-resolves to
-whatever is actually published on npm right now, so these examples double
-as a live integration check of real releases, not a snapshot that quietly
-drifts from what a fresh install actually gets.
+Every example depends on `"@klappay/one": "file:../.."` — always this
+repo's own `dist/`, never a version from npm — committed that way on
+purpose, so a fresh clone always exercises whatever is on this branch, not
+whatever happens to be published. No `pnpm-lock.yaml` is committed under
+`examples/*` (each example's dependency tree is otherwise free to drift
+with npm's registry).
 
-**Testing local, unpublished changes before you push:** build the package
-first (`pnpm build` at the repo root), then from inside an example run
-`pnpm link ../../` to point `@klappay/one` at that local build instead of
-the npm-published version. Run `pnpm unlink @klappay/one && pnpm install`
-afterward to restore the real published version — every example's
-`package.json` should always read `"latest"` when committed, never a
-`link:`/`file:` dependency.
+Run `pnpm build` at the repo root before running an example the first
+time, and again after changing the library — since it's a real filesystem
+link, each example (already `pnpm install`ed) picks up the new `dist/`
+immediately, no re-install, link, or unlink step needed.
 
 ## Tests
 
@@ -61,18 +58,15 @@ already live next to the code they cover.
 
 ## CI
 
-`.github/workflows/ci.yml`'s `examples` job installs, typechecks, tests,
-and builds each app on every push — no deploy, just a correctness check
-(and, since nothing is pinned, an early warning if a real release breaks
-one of these).
+`.github/workflows/ci.yml` runs two jobs against these examples:
 
-It tries the published `latest` first. That's the real signal described
-above — when it passes, the example genuinely works against what's
-installable today. When a change has landed on `main` but its "Version
-Packages" PR hasn't been merged yet (the normal state in between),
-`latest` doesn't have what the example needs yet, which would otherwise
-fail CI for a reason that has nothing to do with the example's own code.
-CI logs a `::notice::` and falls back to building `@klappay/one` from
-source and `pnpm link`-ing it in — the same manual steps described above
-— before trying again. If it still fails after that, it's a real bug in
-the example.
+- **`examples`** builds `@klappay/one` from source, then installs,
+  typechecks, tests, and builds each app against it — always the local
+  build, on every push. This is the real gate: it fails the build if a
+  change to the library breaks any example.
+- **`examples-published-smoke-test`** overrides the dependency to `latest`
+  instead and repeats the same checks, but doesn't block the build
+  (`continue-on-error: true`). It's expected to fail for a stretch after
+  merging a feature and before merging its "Version Packages" PR — that's
+  npm not having the change yet, not a bug in the example. When it passes,
+  that's confirmation of what a fresh `pnpm install` actually gets today.

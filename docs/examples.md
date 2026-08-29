@@ -4,16 +4,22 @@ Full create-a-charge-then-render-a-button integrations, one per stack. All
 four follow the same shape: a tiny backend creates a `Charge` with
 [`@klappay/node`](https://node-sdk.klappay.com) (your `KLAP_API_KEY` never
 reaches the browser), then hands the resulting `chargeId` to `@klappay/one`
-on the client.
+on the client — the pattern shown below and the one to ship.
+
+The runnable apps under `examples/` wire the button's origin/charge ID
+inputs to a "Generate button" button instead of fetching automatically, so
+you can point the button at any charge without editing code; each
+backend route is still real and working — `curl` it directly to mint a
+`chargeId`, or wire the `fetch` back in for the shape shown below.
 
 Want to clone and run one instead of reading it here? See
 [`examples/`](https://github.com/klappay/klap-one-js/tree/main/examples) in
 the repo — four standalone, `pnpm install && pnpm dev`-ready apps. Each
-always depends on `@klappay/one`'s `latest` npm release, so they double as
-a live integration check, not a frozen snapshot — see the repo's own
+always depends on this repo's own local `@klappay/one` build (`pnpm build`
+at the repo root), never a version from npm — see the repo's own
 [`examples/README.md`](https://github.com/klappay/klap-one-js/tree/main/examples#readme)
-for the "test against local, unpublished changes" workflow and the CI
-fallback behind it.
+for why, and for how CI separately verifies the real npm release still
+works.
 
 ## Vanilla (no bundler)
 

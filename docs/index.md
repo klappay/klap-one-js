@@ -36,6 +36,6 @@ features:
     details: onSuccess is a UX signal only — real fulfillment comes from Klappay Core's charge.confirmed webhook. The docs explain exactly why.
     link: /protocol
   - title: Runnable examples
-    details: Four full, clone-and-run apps — vanilla/no-bundler, Next.js, Nuxt, and SvelteKit — each creating a real charge and rendering the button end to end.
+    details: Four full, clone-and-run apps — vanilla/no-bundler, Next.js, Nuxt, and SvelteKit — each rendering the button live against a charge ID you supply, backed by a real charge-creation API route.
     link: /examples
 ---

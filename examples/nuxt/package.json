@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@klappay/node": "^3.4.0",
-    "@klappay/one": "latest",
+    "@klappay/one": "file:../..",
     "nuxt": "^4.5.2",
     "vue": "^3.5.41"
   },

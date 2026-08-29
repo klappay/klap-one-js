@@ -23,9 +23,13 @@ build instead).
   open), a static route serving the IIFE bundle from `node_modules`, and a
   static route serving `public/`.
 - `src/index.ts` — boots the Hono app with `@hono/node-server`.
-- `public/index.html` + `public/app.js` — the browser side: on click,
-  creates a charge, then calls `KlappayOne.createKlappayOne({ chargeId,
-  origin, ... }).open()` and reports the result.
+- `public/index.html` + `public/app.js` — the browser side, two integrations
+  side by side: the programmatic API (creates a real charge via `POST
+  /api/charges`, then calls `KlappayOne.createKlappayOne({ chargeId,
+  origin, ... }).open()`) and `<klappay-button>` (an origin input,
+  pre-filled from `GET /api/config`, and a charge ID input you fill in by
+  hand, plus a "Generate button" button that sets `charge-id`/`origin` on
+  a `<klappay-button>` element) — both report the result the same way.
 
 ## Prerequisites
 
@@ -43,11 +47,15 @@ KLAP_API_KEY=your_api_key \
   pnpm dev
 ```
 
-Then open `http://localhost:3000` and click "Start checkout".
+Then open `http://localhost:3000` — click "Start checkout" for the
+programmatic-API demo, or fill in the origin/charge ID inputs and click
+"Generate button" for the `<klappay-button>` demo (its origin input is
+pre-filled from `GET /api/config`; the charge ID is always typed in by
+hand — `curl -X POST http://localhost:3000/api/charges` mints a real one).
 
 The server boots fine even without any of the three variables set
-(credential resolution is lazy) — you'll just get a clean error from
-`POST /api/charges` instead of a working checkout until you set them.
+(credential resolution is lazy) — the programmatic-API demo and a curled
+`POST /api/charges` will just return a clean error until you set them.
 
 ## Test
 
@@ -61,25 +69,14 @@ exact charge shape requested and that a failure from the underlying client
 propagates instead of being swallowed. It never hits the network and never
 needs real credentials.
 
-## Testing against local unpublished changes
+## Always tests against the local build
 
-By default this example depends on `@klappay/one@latest` from npm, so it
-doubles as a live smoke test of whatever is actually published. To test
-against changes made in this repo instead:
+This example depends on `@klappay/one` via `"file:../.."` — always this repo's
+own `dist/`, never a version from npm. Run `pnpm build` at the repo root
+whenever the library changes; this example (already installed) picks it up
+immediately since it's a real filesystem link, no `pnpm install`, link, or
+unlink step needed.
 
-```bash
-# from the repo root
-pnpm build
-
-# from this folder
-cd examples/vanilla
-pnpm link ../../
-```
-
-When you're done, restore the real published version before committing
-anything in this folder:
-
-```bash
-pnpm unlink @klappay/one
-pnpm install
-```
+CI separately verifies `@klappay/one@latest` — the real npm release — still
+satisfies this example, in a non-blocking job (see the repo's own
+`.github/workflows/ci.yml`).

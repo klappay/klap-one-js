@@ -120,8 +120,10 @@ your own CSS, this package only adds the click handler.
 
 ## See it running
 
-[Examples](/examples) has both patterns wired to a real backend that
-creates the charge first — the [vanilla example](/examples#vanilla-no-bundler)
-drives a plain button with the [programmatic API](/programmatic) directly,
-and every framework example wires up `<klappay-button>`/`<KlappayButton />`
-end to end.
+[Examples](/examples) runs both patterns end to end — the
+[vanilla example](/examples#vanilla-no-bundler) demonstrates both side by
+side, a plain button driven by the [programmatic API](/programmatic)
+against a real backend-created charge, and a `<klappay-button>` you point
+at any origin/charge ID via two inputs and a "Generate button" button;
+every framework example wires up `<klappay-button>`/`<KlappayButton />`
+the same way.

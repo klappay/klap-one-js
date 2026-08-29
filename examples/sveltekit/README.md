@@ -1,6 +1,6 @@
 # klap-one-js — SvelteKit example
 
-A standalone, runnable SvelteKit app: a `+server.ts` route creates the
+A standalone, runnable SvelteKit app: a `+server.ts` route can create a
 `Charge` server-side (so `KLAP_API_KEY` never reaches the browser), and
 the raw `<klappay-button>` Custom Element is rendered directly in a
 Svelte template — there's no Svelte-specific wrapper package, since a
@@ -28,10 +28,15 @@ build instead).
   even when neither variable is set — `$env/static/private` requires the
   vars to exist at build time, `$env/dynamic/private` only reads them at
   request time, same lazy-resolution behavior as the other three examples.
-- `src/routes/+page.svelte` — a "Start checkout" button that fetches
-  `/api/charges`, calls `configure({ origin: PUBLIC_KLAP_ONE_ORIGIN })`
-  from `@klappay/one`, then renders `<klappay-button charge-id={chargeId}
-  on:success on:error on:cancel />` and reports status in the UI.
+  Not called from the page itself; `curl -X POST
+  http://localhost:5173/api/charges` mints a real `chargeId` to paste into
+  the form below.
+- `src/routes/+page.svelte` — an origin input (pre-filled from
+  `PUBLIC_KLAP_ONE_ORIGIN`) and a charge ID input, plus `<klappay-button>`
+  itself, always mounted. It renders natively disabled until both inputs
+  have a value — the "Generate button" button (labeled "Fill in origin and
+  charge ID first" until then) copies the inputs' current value onto it,
+  enabling it, and reports status in the UI.
 - `src/routes/+page.ts` — `export const ssr = false` for that page:
   `@klappay/one` registers a Custom Element and touches `document` at
   import time, so this route can't be server-rendered.
@@ -55,7 +60,8 @@ and `PUBLIC_KLAP_ONE_ORIGIN` (e.g. `https://klap.one`), then:
 pnpm dev
 ```
 
-Then open `http://localhost:5173` and click "Start checkout".
+Then open `http://localhost:5173`, fill in the origin and charge ID
+inputs, and click "Generate button".
 
 ## Test
 
@@ -69,25 +75,14 @@ client, asserting the exact charge shape requested and that a failure from
 the underlying client propagates instead of being swallowed. It never hits
 the network and never needs real credentials.
 
-## Testing against local unpublished changes
+## Always tests against the local build
 
-By default this example depends on `@klappay/one@latest` from npm, so it
-doubles as a live smoke test of whatever is actually published. To test
-against changes made in this repo instead:
+This example depends on `@klappay/one` via `"file:../.."` — always this repo's
+own `dist/`, never a version from npm. Run `pnpm build` at the repo root
+whenever the library changes; this example (already installed) picks it up
+immediately since it's a real filesystem link, no `pnpm install`, link, or
+unlink step needed.
 
-```bash
-# from the repo root
-pnpm build
-
-# from this folder
-cd examples/sveltekit
-pnpm link ../../
-```
-
-When you're done, restore the real published version before committing
-anything in this folder:
-
-```bash
-pnpm unlink @klappay/one
-pnpm install
-```
+CI separately verifies `@klappay/one@latest` — the real npm release — still
+satisfies this example, in a non-blocking job (see the repo's own
+`.github/workflows/ci.yml`).

@@ -88,9 +88,12 @@ same way you'd style any other button on your page.
 
 ## See it running
 
-The [vanilla example](/examples#vanilla-no-bundler) renders a plain
+The [vanilla example](/examples#vanilla-no-bundler) renders both a plain
 `<button>` you own and style entirely yourself, wired up with
-`createKlappayOne()`; every framework example in [Examples](/examples)
-renders `<klappay-button>`/`<KlappayButton />` with the default
-`variant`/`size` — a good starting point to try overriding the CSS custom
-properties above against a real, running app.
+`createKlappayOne()`, and a `<klappay-button>` with the default
+`variant`/`size`, rendered disabled until you type an origin/charge ID and
+click "Generate button" to enable it — right below it; every framework
+example in [Examples](/examples)
+renders `<klappay-button>`/`<KlappayButton />` the same way — a good
+starting point to try overriding the CSS custom properties above against a
+real, running app.

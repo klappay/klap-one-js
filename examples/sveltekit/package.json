@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@klappay/node": "^3.4.0",
-    "@klappay/one": "latest"
+    "@klappay/one": "file:../.."
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

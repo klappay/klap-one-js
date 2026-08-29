@@ -1,7 +1,7 @@
 # klap-one-js — Nuxt example
 
 A standalone, runnable example built with [Nuxt](https://nuxt.com) — a
-Nitro server route creates the `Charge`, and a Vue component wraps the
+Nitro server route can create a `Charge`, and a Vue component wraps the
 raw `<klappay-button>` Custom Element (there is no Vue-specific wrapper
 package; `@klappay/one` registers `<klappay-button>` as soon as it's
 imported, and it's used directly in the template).
@@ -21,10 +21,15 @@ build instead).
   browser), a plain module with no Nuxt auto-import dependency.
 - `server/api/charges.post.ts` — the Nitro route handler: builds a
   `createClient()` from `useRuntimeConfig()` and calls `createDemoCharge`.
-- `app/components/CheckoutButton.vue` — the browser side: "Start
-  checkout" calls `POST /api/charges`, stores the returned `chargeId`,
-  calls `configure({ origin })` from `@klappay/one`, then renders
-  `<klappay-button :charge-id="chargeId" />` and reports `success` /
+  Not called from the page itself; `curl -X POST
+  http://localhost:3000/api/charges` mints a real `chargeId` to paste
+  into the form below.
+- `app/components/CheckoutButton.vue` — the browser side: an origin input
+  (pre-filled from `runtimeConfig.public.klapOneOrigin`) and a charge ID
+  input, plus `<klappay-button>` itself, always mounted. It renders
+  natively disabled until both inputs have a value — the "Generate button"
+  button (labeled "Fill in origin and charge ID first" until then) copies
+  the inputs' current value onto it, enabling it, and reports `success` /
   `error` / `cancel` status.
 - `app/app.vue` — renders `<CheckoutButton />` inside `<ClientOnly>`
   (`@klappay/one` registers a Custom Element on `window.customElements`,
@@ -50,16 +55,17 @@ KLAP_API_KEY=your_api_key \
   pnpm dev
 ```
 
-Then open `http://localhost:3000` and click "Start checkout".
+Then open `http://localhost:3000`, fill in the origin and charge ID
+inputs, and click "Generate button".
 
 `KLAP_API_KEY`/`KLAP_BASE_URL` are read into `runtimeConfig.apiKey`/
 `runtimeConfig.baseUrl` (server-only); `KLAP_ONE_ORIGIN` is read into
-`runtimeConfig.public.klapOneOrigin`, which `CheckoutButton.vue` passes to
-`configure({ origin })`.
+`runtimeConfig.public.klapOneOrigin`, which `CheckoutButton.vue` uses to
+pre-fill the origin input.
 
 The server boots fine even without any of the three variables set
-(credential resolution is lazy) — you'll just get a clean error from
-`POST /api/charges` instead of a working checkout until you set them.
+(credential resolution is lazy) — a curled `POST /api/charges` just
+returns a clean error instead of a real `chargeId` until you set them.
 
 ## Test
 
@@ -74,25 +80,14 @@ from the underlying client propagates instead of being swallowed. It
 never hits the network, never needs real credentials, and runs under
 plain `vitest` with no Nuxt runtime.
 
-## Testing against local unpublished changes
+## Always tests against the local build
 
-By default this example depends on `@klappay/one@latest` from npm, so it
-doubles as a live smoke test of whatever is actually published. To test
-against changes made in this repo instead:
+This example depends on `@klappay/one` via `"file:../.."` — always this repo's
+own `dist/`, never a version from npm. Run `pnpm build` at the repo root
+whenever the library changes; this example (already installed) picks it up
+immediately since it's a real filesystem link, no `pnpm install`, link, or
+unlink step needed.
 
-```bash
-# from the repo root
-pnpm build
-
-# from this folder
-cd examples/nuxt
-pnpm link ../../
-```
-
-When you're done, restore the real published version before committing
-anything in this folder:
-
-```bash
-pnpm unlink @klappay/one
-pnpm install
-```
+CI separately verifies `@klappay/one@latest` — the real npm release — still
+satisfies this example, in a non-blocking job (see the repo's own
+`.github/workflows/ci.yml`).

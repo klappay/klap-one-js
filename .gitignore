@@ -8,8 +8,8 @@ coverage
 .env
 .claude/settings.local.json
 
-# examples/* are standalone apps that always track @klappay/one's
-# "latest" npm dist-tag (see examples/README.md) — a committed lockfile
-# would defeat that. Each example has its own .gitignore for its own
+# examples/* are standalone apps (see examples/README.md) whose other
+# dependencies are free to drift with npm's registry, so a committed
+# lockfile would go stale. Each example has its own .gitignore for its own
 # build output; this only needs to cover what those don't.
 examples/*/pnpm-lock.yaml

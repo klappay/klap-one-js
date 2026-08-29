@@ -11,7 +11,17 @@
         margin: 80px auto;
         text-align: center;
       }
-      #status {
+      section {
+        margin-top: 48px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+      }
+      input {
+        margin-left: 8px;
+      }
+      p[id$='status'] {
         margin-top: 16px;
         color: #666;
       }
@@ -19,8 +29,22 @@
   </head>
   <body>
     <h1>Pay $25 in USDC</h1>
-    <button id="start">Start checkout</button>
-    <p id="status"></p>
+
+    <section>
+      <h2>Programmatic API</h2>
+      <button id="start">Start checkout</button>
+      <p id="status"></p>
+    </section>
+
+    <section>
+      <h2>&lt;klappay-button&gt;</h2>
+      <label>Klappay One origin <input id="origin-input" type="text" placeholder="https://klap.one" /></label>
+      <label>Charge ID <input id="charge-id-input" type="text" placeholder="ch_123" /></label>
+      <button id="generate-button">Generate button</button>
+      <div id="checkout"></div>
+      <p id="component-status"></p>
+    </section>
+
     <script src="/app.js"></script>
   </body>
 </html>

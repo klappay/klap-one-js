@@ -12,7 +12,7 @@
   "dependencies": {
     "@hono/node-server": "^1.13.0",
     "@klappay/node": "^3.4.0",
-    "@klappay/one": "latest",
+    "@klappay/one": "file:../..",
     "hono": "^4.6.0"
   },
   "devDependencies": {
