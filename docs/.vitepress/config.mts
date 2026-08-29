@@ -14,6 +14,14 @@ export default defineConfig({
     plugins: [llmstxt({ domain: 'https://js-one.klappay.com' })],
   },
 
+  vue: {
+    template: {
+      compilerOptions: {
+        isCustomElement: (tag) => tag === 'klappay-button',
+      },
+    },
+  },
+
   themeConfig: {
     logo: '/logo.png',
 

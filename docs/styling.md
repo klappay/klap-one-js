@@ -33,6 +33,19 @@ system (no `primaryColor: '#ff00ff'`):
 Both attributes are reactive — changing them after the element is mounted
 updates the rendered button immediately, no re-render/remount needed.
 
+**Try it live** — this is the real `<klappay-button>`, rendered by the
+actual package, not a screenshot:
+
+<div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 16px 0;">
+  <KlappayButtonDemo variant="black" size="md" />
+  <KlappayButtonDemo variant="white" size="md" />
+  <KlappayButtonDemo variant="yellow" size="md" />
+</div>
+
+(`origin`/`charge-id` above point at a placeholder domain, not a real
+Klappay origin — clicking opens nothing real, this is purely a rendering
+demo.)
+
 ## CSS custom properties across the Shadow DOM boundary
 
 `<klappay-button>` renders inside a Shadow DOM, isolating your page's CSS
@@ -66,6 +79,13 @@ you set — they override that variant's colors specifically, they don't
 replace the variant system with an unbounded one. If you need a color
 outside the three presets entirely, set `variant="black"` (or any) and
 override both properties together, as in the example above.
+
+**Try it live** — the CSS custom properties from the snippet above,
+applied to a real button:
+
+<div style="--klappay-radius: 4px; --klappay-font-family: 'Inter', sans-serif; --klappay-button-height: 44px; --klappay-background: #2563eb; --klappay-color: #ffffff; margin: 16px 0;">
+  <KlappayButtonDemo variant="black" size="md" />
+</div>
 
 ## Your own button (`data-klappay-one`)
 

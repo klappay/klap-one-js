@@ -21,6 +21,11 @@ own leaks across the boundary:
 ></klappay-button>
 ```
 
+That's the real component, rendered live (`origin` here points at a
+placeholder domain, not a real Klappay origin, so clicking opens nothing):
+
+<KlappayButtonDemo variant="black" size="md" />
+
 | Attribute | Required | Description |
 | --- | --- | --- |
 | `charge-id` | Yes | The `Charge` this checkout is for. |
