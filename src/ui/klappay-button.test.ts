@@ -1,6 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as klappayOneModule from '../core/klappay-one'
-import { KLAPPAY_BUTTON_TAG, registerKlappayButton } from './klappay-button'
+import {
+  KLAPPAY_BUTTON_TAG,
+  type KlappayButtonElement,
+  registerKlappayButton,
+} from './klappay-button'
 
 vi.mock('../core/klappay-one', async (importOriginal) => {
   const actual = await importOriginal<typeof klappayOneModule>()
@@ -19,8 +23,8 @@ describe('klappay-button', () => {
     vi.restoreAllMocks()
   })
 
-  function mount(attrs: Record<string, string> = {}): HTMLElement {
-    const el = document.createElement(KLAPPAY_BUTTON_TAG)
+  function mount(attrs: Record<string, string> = {}): KlappayButtonElement {
+    const el = document.createElement(KLAPPAY_BUTTON_TAG) as KlappayButtonElement
     for (const [key, value] of Object.entries(attrs)) el.setAttribute(key, value)
     document.body.append(el)
     return el
@@ -62,7 +66,7 @@ describe('klappay-button', () => {
   })
 
   it('accepts variant/size via property assignment, not just setAttribute', () => {
-    const el = mount() as HTMLElement & { variant: string; size: string }
+    const el = mount()
     el.variant = 'yellow'
     el.size = 'lg'
 
