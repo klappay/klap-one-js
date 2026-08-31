@@ -83,11 +83,20 @@ dead whitespace around a shorter step in the flow (e.g. an error screen).
 Closing reverses the same transition before the modal actually leaves the
 DOM.
 
-Both dimensions are still capped at `calc(100vw/vh - 32px)` — the modal
-never grows past the viewport regardless of what a step reports. The
-merchant page's own `<body>`/`<html>` also gets `overflow: hidden` for as
-long as the modal is open (restored once it's actually gone), so a page
-taller than the screen can't keep scrolling behind it.
+The frame's width is capped at `calc(100vw - 32px)`, but its height isn't
+— one-id measures its own content against whatever height it's actually
+given, with no idea a client-side cap might otherwise cut that shorter,
+so clamping it here would leave content taller than what renders, forcing
+a scrollbar inside the iframe itself that's a different, cross-origin
+document and unstyleable from this side of the bridge. The backdrop
+scrolls instead (with its own styled scrollbar) on the rare step that's
+genuinely taller than the viewport.
+
+The merchant page's own `<body>` is pinned with `position: fixed` for as
+long as the modal is open (restored, scroll position included, once it's
+actually gone), so a page taller than the screen can't keep scrolling
+behind it — `overflow: hidden` alone doesn't reliably stop a real
+wheel/trackpad gesture from doing that in every browser.
 
 ## See it running
 

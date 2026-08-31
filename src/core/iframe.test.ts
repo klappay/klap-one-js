@@ -31,6 +31,29 @@ describe('openIframe', () => {
     return host?.shadowRoot?.querySelector('.backdrop')
   }
 
+  function getStyleText(): string {
+    const host = document.body.lastElementChild
+    return host?.shadowRoot?.querySelector('style')?.textContent ?? ''
+  }
+
+  it("never clamps the frame's own height, so one-id's content can't end up taller than what it was told it has", () => {
+    // A max-height here would clip the iframe box shorter than whatever
+    // height resize() sets it to — but one-id measures its own content
+    // against the height it's given, with no idea this box might get cut
+    // shorter than that, and the excess would need to scroll inside the
+    // iframe itself: a different, cross-origin document, unstyleable from
+    // here. The backdrop scrolls instead, see the next test.
+    openIframe('https://one.klappay.com/id/', vi.fn())
+
+    expect(getStyleText()).not.toMatch(/\.frame\s*\{[^}]*max-height:/)
+  })
+
+  it('lets the backdrop itself scroll when a step is genuinely taller than the viewport', () => {
+    openIframe('https://one.klappay.com/id/', vi.fn())
+
+    expect(getStyleText()).toMatch(/\.backdrop\s*\{[^}]*overflow-y:\s*auto/)
+  })
+
   it('mounts an iframe pointing at the given URL inside a shadow root', () => {
     openIframe('https://one.klappay.com/id/?chargeId=ch_123', vi.fn())
 

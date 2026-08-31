@@ -23,20 +23,50 @@ function css(): string {
       inset: 0;
       background: rgba(0, 0, 0, 0.5);
       display: flex;
-      align-items: center;
       justify-content: center;
+      /* "safe" keeps the top of the frame reachable by scrolling instead
+         of clipped off-screen — plain "center" alone can make overflowing
+         centered flex content unscrollable in that direction. The plain
+         center above is a fallback for browsers that don't understand the
+         safe keyword; an unsupported value is ignored, not applied. */
+      align-items: center;
+      align-items: safe center;
+      overflow-y: auto;
+      padding: 16px 0;
       z-index: 2147483647;
       opacity: 0;
       transition: opacity ${TRANSITION_MS}ms ${TRANSITION_EASING};
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
     }
     .backdrop.visible {
       opacity: 1;
+    }
+    .backdrop::-webkit-scrollbar {
+      width: 8px;
+    }
+    .backdrop::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .backdrop::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+    .backdrop::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
     }
     .frame {
       width: ${FRAME_WIDTH}px;
       max-width: calc(100vw - 32px);
       height: ${LOADING_FRAME_HEIGHT}px;
-      max-height: calc(100vh - 32px);
+      /* No max-height clamp — one-id measures its own content against the
+         height it's actually given via resize(), with no idea this box
+         might otherwise get cut shorter than that. Clamping here would
+         leave its content taller than what we then render, showing a
+         scrollbar inside the iframe itself that we have no way to style
+         (a different, cross-origin document). The backdrop above scrolls
+         instead when a real step genuinely doesn't fit the viewport. */
+      flex-shrink: 0;
       border: none;
       border-radius: 12px;
       background: #000;
