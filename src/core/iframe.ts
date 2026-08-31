@@ -41,7 +41,7 @@ function css(): string {
       border-radius: 12px;
       background: #000;
       opacity: 0;
-      transform: scale(0.96);
+      transform: translateY(-16px);
       transition:
         height ${TRANSITION_MS}ms ${TRANSITION_EASING},
         opacity ${TRANSITION_MS}ms ${TRANSITION_EASING},
@@ -49,7 +49,7 @@ function css(): string {
     }
     .frame.visible {
       opacity: 1;
-      transform: scale(1);
+      transform: translateY(0);
     }
   `
 }
@@ -79,6 +79,28 @@ export function openIframe(url: string, onDismiss: () => void): IframeHandle {
   shadow.append(style, backdrop)
   document.body.append(host)
 
+  // The backdrop already covers the full viewport, but the merchant's own
+  // page behind it can still be taller than the screen — without this, it
+  // keeps scrolling right along with the modal open on top of it.
+  // `overflow: hidden` alone doesn't reliably stop that (a wheel/trackpad
+  // gesture can still move window.scrollY in some browsers even with it
+  // set on both <html> and <body>) — pinning <body> itself with `position:
+  // fixed` is what actually removes it from the scrollable area, the same
+  // technique every body-scroll-lock library uses. Restored once the
+  // modal is actually gone, not when close() is first called, so the page
+  // doesn't jump/reflow while the exit transition is still playing.
+  const scrollY = window.scrollY
+  const previousBodyPosition = document.body.style.position
+  const previousBodyTop = document.body.style.top
+  const previousBodyWidth = document.body.style.width
+  const previousBodyOverflow = document.body.style.overflow
+  const previousHtmlOverflow = document.documentElement.style.overflow
+  document.body.style.position = 'fixed'
+  document.body.style.top = `-${scrollY}px`
+  document.body.style.width = '100%'
+  document.body.style.overflow = 'hidden'
+  document.documentElement.style.overflow = 'hidden'
+
   // The elements have to actually paint in their initial (invisible)
   // state before adding `visible` for the transition to run — flipping
   // both in the same tick the host is inserted would just skip straight
@@ -106,6 +128,12 @@ export function openIframe(url: string, onDismiss: () => void): IframeHandle {
     function remove(): void {
       if (removed) return
       removed = true
+      document.body.style.position = previousBodyPosition
+      document.body.style.top = previousBodyTop
+      document.body.style.width = previousBodyWidth
+      document.body.style.overflow = previousBodyOverflow
+      document.documentElement.style.overflow = previousHtmlOverflow
+      window.scrollTo(0, scrollY)
       host.remove()
     }
 

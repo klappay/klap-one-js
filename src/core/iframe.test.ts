@@ -1,9 +1,24 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { openIframe } from './iframe'
 
 describe('openIframe', () => {
+  beforeEach(() => {
+    // jsdom doesn't implement scrollTo() — every close() calls it as part
+    // of restoring scroll position, not just the test that asserts on it.
+    vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
+  })
+
   afterEach(() => {
     document.body.innerHTML = ''
+    // Most tests below never call close(), so without this a test that
+    // leaves body pinned would leak into whichever test runs next.
+    document.body.style.position = ''
+    document.body.style.top = ''
+    document.body.style.width = ''
+    document.body.style.overflow = ''
+    document.documentElement.style.overflow = ''
+    Object.defineProperty(window, 'scrollY', { value: 0, configurable: true })
+    vi.restoreAllMocks()
   })
 
   function getFrame(): HTMLIFrameElement | null | undefined {
@@ -73,6 +88,48 @@ describe('openIframe', () => {
 
     vi.advanceTimersByTime(300)
     expect(getFrame()).toBeFalsy()
+    vi.useRealTimers()
+  })
+
+  it("pins body via position: fixed while open, so the page behind it can't scroll", () => {
+    // overflow: hidden alone isn't enough — a wheel/trackpad gesture can
+    // still move window.scrollY in some browsers even with it set on both
+    // <html> and <body>. Pinning <body> with position: fixed removes it
+    // from the scrollable area entirely, same as body-scroll-lock
+    // libraries do.
+    openIframe('https://one.klappay.com/id/', vi.fn())
+
+    expect(document.body.style.position).toBe('fixed')
+    expect(document.body.style.overflow).toBe('hidden')
+    expect(document.documentElement.style.overflow).toBe('hidden')
+  })
+
+  it('offsets the pinned body by the current scroll position, so pinning it does not jump the page', () => {
+    Object.defineProperty(window, 'scrollY', { value: 450, configurable: true })
+
+    openIframe('https://one.klappay.com/id/', vi.fn())
+
+    expect(document.body.style.top).toBe('-450px')
+  })
+
+  it("restores the page's own position/overflow and scroll offset once the modal is actually gone", () => {
+    vi.useFakeTimers()
+    document.body.style.position = 'relative'
+    document.body.style.overflow = 'scroll'
+    document.documentElement.style.overflow = 'auto'
+    Object.defineProperty(window, 'scrollY', { value: 450, configurable: true })
+
+    const handle = openIframe('https://one.klappay.com/id/', vi.fn())
+    handle.close()
+    // Not restored yet — the exit transition (or its fallback below) is
+    // still "in flight", and the page shouldn't jump/reflow under it.
+    expect(document.body.style.position).toBe('fixed')
+
+    vi.advanceTimersByTime(300)
+    expect(document.body.style.position).toBe('relative')
+    expect(document.body.style.overflow).toBe('scroll')
+    expect(document.documentElement.style.overflow).toBe('auto')
+    expect(window.scrollTo).toHaveBeenCalledWith(0, 450)
     vi.useRealTimers()
   })
 
