@@ -49,7 +49,7 @@ describe('klappay-button', () => {
 
     expect(img?.getAttribute('alt')).toBe('')
     expect(img?.getAttribute('aria-hidden')).toBe('true')
-    expect(img?.src).toContain('data:image/png;base64,')
+    expect(img?.src).toContain('data:image/webp;base64,')
     expect(button?.textContent).toContain('Pay with Klappay')
   })
 
