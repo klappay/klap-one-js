@@ -1,5 +1,13 @@
 # @klappay/one
 
+## 1.1.2
+
+### Patch Changes
+
+- acc490d: Fix `@klappay/one`'s entry module crashing (and never assigning `window.KlappayOne`) when loaded via a `<script>` tag placed in `<head>` — the documented no-bundler path. `observeNewElements()` was called unconditionally regardless of `document.readyState`, unlike `wireExisting()`, so it read `document.body` while it was still `null` (the parser hadn't reached `<body>` yet) and `observer.observe(null, ...)` threw, aborting the whole module before it could export anything. Both calls now wait for the same readiness.
+- 5e62224: Fix the checkout modal letting the merchant's own page scroll behind it while open — a wheel/trackpad gesture over the backdrop now only scrolls the backdrop itself (when a step is genuinely taller than the viewport), never the page underneath, without ever touching the host page's own `<body>`/`<html>`. Also adds a sensible minimum height so a short step (e.g. the initial identify screen) doesn't look cramped on a tall window, and a subtle slide-down + scale + fade entrance/exit animation.
+- 6aab215: Shrink the published bundle by ~18% — `<klappay-button>`'s logo icons are now encoded as lossless WebP instead of PNG (pixel-identical, ~37% smaller than before), and both the button's and the checkout modal's CSS are now built once at module load instead of being recomputed on every render.
+
 ## 1.1.1
 
 ### Patch Changes
