@@ -1,24 +1,28 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { openIframe } from './iframe'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { type IframeHandle, openIframe } from './iframe'
 
 describe('openIframe', () => {
-  beforeEach(() => {
-    // jsdom doesn't implement scrollTo() — every close() calls it as part
-    // of restoring scroll position, not just the test that asserts on it.
-    vi.spyOn(window, 'scrollTo').mockImplementation(() => {})
-  })
+  let handles: IframeHandle[] = []
+
+  function open(url = 'https://one.klappay.com/id/', onDismiss = vi.fn()): IframeHandle {
+    const handle = openIframe(url, onDismiss)
+    handles.push(handle)
+    return handle
+  }
 
   afterEach(() => {
+    // Every open() call registers a document-level wheel listener (see
+    // iframe.ts) — closing here is what unregisters it. Left open, a
+    // listener from one test would still fire (and potentially call
+    // preventDefault) on a wheel event dispatched by a later, unrelated
+    // test, since it's attached to `document` itself, not to anything
+    // document.body.innerHTML below actually removes.
+    vi.useFakeTimers()
+    for (const handle of handles) handle.close()
+    vi.advanceTimersByTime(400)
+    vi.useRealTimers()
+    handles = []
     document.body.innerHTML = ''
-    // Most tests below never call close(), so without this a test that
-    // leaves body pinned would leak into whichever test runs next.
-    document.body.style.position = ''
-    document.body.style.top = ''
-    document.body.style.width = ''
-    document.body.style.overflow = ''
-    document.documentElement.style.overflow = ''
-    Object.defineProperty(window, 'scrollY', { value: 0, configurable: true })
-    vi.restoreAllMocks()
   })
 
   function getFrame(): HTMLIFrameElement | null | undefined {
@@ -36,32 +40,52 @@ describe('openIframe', () => {
     return host?.shadowRoot?.querySelector('style')?.textContent ?? ''
   }
 
+  function mockBackdropScroll(scrollTop: number, clientHeight: number, scrollHeight: number): void {
+    const backdrop = getBackdrop()
+    if (!backdrop) throw new Error('backdrop not mounted')
+    Object.defineProperty(backdrop, 'scrollTop', { value: scrollTop, configurable: true })
+    Object.defineProperty(backdrop, 'clientHeight', { value: clientHeight, configurable: true })
+    Object.defineProperty(backdrop, 'scrollHeight', { value: scrollHeight, configurable: true })
+  }
+
+  function dispatchWheel(deltaY: number): WheelEvent {
+    const event = new WheelEvent('wheel', { deltaY, cancelable: true, bubbles: true })
+    document.dispatchEvent(event)
+    return event
+  }
+
   it("never clamps the frame's own height, so one-id's content can't end up taller than what it was told it has", () => {
     // A max-height here would clip the iframe box shorter than whatever
     // height resize() sets it to — but one-id measures its own content
-    // against the height it's given, with no idea this box might get cut
-    // shorter than that, and the excess would need to scroll inside the
-    // iframe itself: a different, cross-origin document, unstyleable from
-    // here. The backdrop scrolls instead, see the next test.
-    openIframe('https://one.klappay.com/id/', vi.fn())
+    // against the height it's given, with no idea this box might end up
+    // cut shorter than that, and the excess would need to scroll inside
+    // the iframe itself: a different, cross-origin document,
+    // unstyleable from here. The backdrop scrolls instead, next test.
+    open()
 
     expect(getStyleText()).not.toMatch(/\.frame\s*\{[^}]*max-height:/)
   })
 
   it('lets the backdrop itself scroll when a step is genuinely taller than the viewport', () => {
-    openIframe('https://one.klappay.com/id/', vi.fn())
+    open()
 
     expect(getStyleText()).toMatch(/\.backdrop\s*\{[^}]*overflow-y:\s*auto/)
   })
 
+  it("floors the frame's height so a short step doesn't look cramped on a tall window, capped at 70vh so it never forces a short window into overflow just to hit that floor", () => {
+    open()
+
+    expect(getStyleText()).toMatch(/\.frame\s*\{[^}]*min-height:\s*min\(\d+px,\s*70vh\)/)
+  })
+
   it('mounts an iframe pointing at the given URL inside a shadow root', () => {
-    openIframe('https://one.klappay.com/id/?chargeId=ch_123', vi.fn())
+    open('https://one.klappay.com/id/?chargeId=ch_123')
 
     expect(getFrame()?.src).toBe('https://one.klappay.com/id/?chargeId=ch_123')
   })
 
   it('updates the iframe height via resize()', () => {
-    const handle = openIframe('https://one.klappay.com/id/', vi.fn())
+    const handle = open()
 
     handle.resize(500)
 
@@ -75,10 +99,10 @@ describe('openIframe', () => {
     const originalRAF = window.requestAnimationFrame
     window.requestAnimationFrame = vi.fn()
 
-    openIframe('https://one.klappay.com/id/', vi.fn())
+    open()
     expect(getBackdrop()?.classList.contains('visible')).toBe(false)
 
-    vi.advanceTimersByTime(200)
+    vi.advanceTimersByTime(320)
     expect(getBackdrop()?.classList.contains('visible')).toBe(true)
 
     window.requestAnimationFrame = originalRAF
@@ -87,7 +111,7 @@ describe('openIframe', () => {
 
   it('removes the host element from the document via close(), after the exit transition', () => {
     vi.useFakeTimers()
-    const handle = openIframe('https://one.klappay.com/id/', vi.fn())
+    const handle = open()
     expect(document.body.lastElementChild?.shadowRoot).toBeTruthy()
 
     handle.close()
@@ -97,68 +121,96 @@ describe('openIframe', () => {
     // transition itself never completed for some reason.
     expect(getFrame()).toBeTruthy()
 
-    vi.advanceTimersByTime(300)
+    vi.advanceTimersByTime(400)
     expect(getFrame()).toBeFalsy()
     vi.useRealTimers()
   })
 
   it('does not throw when close() is called more than once', () => {
     vi.useFakeTimers()
-    const handle = openIframe('https://one.klappay.com/id/', vi.fn())
+    const handle = open()
 
     handle.close()
     expect(() => handle.close()).not.toThrow()
 
-    vi.advanceTimersByTime(300)
+    vi.advanceTimersByTime(400)
     expect(getFrame()).toBeFalsy()
     vi.useRealTimers()
   })
 
-  it("pins body via position: fixed while open, so the page behind it can't scroll", () => {
-    // overflow: hidden alone isn't enough — a wheel/trackpad gesture can
-    // still move window.scrollY in some browsers even with it set on both
-    // <html> and <body>. Pinning <body> with position: fixed removes it
-    // from the scrollable area entirely, same as body-scroll-lock
-    // libraries do.
-    openIframe('https://one.klappay.com/id/', vi.fn())
+  it("cancels a wheel gesture that would scroll the page behind it, so the merchant's own page can't scroll while the modal is open", () => {
+    // The backdrop has no scrollable content of its own here (a short step
+    // like identify) — scrollTop/clientHeight/scrollHeight all agree there's
+    // nowhere to go, so a gesture in either direction is already "at both
+    // ends" and gets cancelled instead of chaining to the page behind.
+    open()
+    mockBackdropScroll(0, 400, 400)
 
-    expect(document.body.style.position).toBe('fixed')
-    expect(document.body.style.overflow).toBe('hidden')
-    expect(document.documentElement.style.overflow).toBe('hidden')
+    const event = dispatchWheel(50)
+
+    expect(event.defaultPrevented).toBe(true)
   })
 
-  it('offsets the pinned body by the current scroll position, so pinning it does not jump the page', () => {
-    Object.defineProperty(window, 'scrollY', { value: 450, configurable: true })
+  it('lets the backdrop scroll its own content normally when it still has room, instead of blocking every wheel gesture outright', () => {
+    // A step genuinely taller than the viewport (see the max-height test
+    // above) — scrolled partway down, with more room below. Cancelling
+    // here would also break the backdrop's own scrolling, not just stop
+    // it from leaking to the page behind.
+    open()
+    mockBackdropScroll(100, 400, 900)
 
-    openIframe('https://one.klappay.com/id/', vi.fn())
+    const event = dispatchWheel(50)
 
-    expect(document.body.style.top).toBe('-450px')
+    expect(event.defaultPrevented).toBe(false)
   })
 
-  it("restores the page's own position/overflow and scroll offset once the modal is actually gone", () => {
+  it('cancels a downward wheel gesture once the backdrop is already scrolled to its own bottom', () => {
+    open()
+    mockBackdropScroll(500, 400, 900)
+
+    const event = dispatchWheel(50)
+
+    expect(event.defaultPrevented).toBe(true)
+  })
+
+  it('cancels an upward wheel gesture once the backdrop is already scrolled to its own top', () => {
+    open()
+    mockBackdropScroll(0, 400, 900)
+
+    const event = dispatchWheel(-50)
+
+    expect(event.defaultPrevented).toBe(true)
+  })
+
+  it("doesn't touch the merchant page's own <body>/<html> styles at all", () => {
+    // Regression guard for the earlier position: fixed approach — this
+    // package never has a reason to write to the host page's own body,
+    // only to its own Shadow DOM.
+    const bodyStyleBefore = document.body.getAttribute('style')
+    const htmlStyleBefore = document.documentElement.getAttribute('style')
+
+    open()
+
+    expect(document.body.getAttribute('style')).toBe(bodyStyleBefore)
+    expect(document.documentElement.getAttribute('style')).toBe(htmlStyleBefore)
+  })
+
+  it('stops intercepting wheel gestures once the modal is closed', () => {
     vi.useFakeTimers()
-    document.body.style.position = 'relative'
-    document.body.style.overflow = 'scroll'
-    document.documentElement.style.overflow = 'auto'
-    Object.defineProperty(window, 'scrollY', { value: 450, configurable: true })
+    const handle = open()
+    mockBackdropScroll(0, 400, 400)
 
-    const handle = openIframe('https://one.klappay.com/id/', vi.fn())
     handle.close()
-    // Not restored yet — the exit transition (or its fallback below) is
-    // still "in flight", and the page shouldn't jump/reflow under it.
-    expect(document.body.style.position).toBe('fixed')
+    vi.advanceTimersByTime(400)
 
-    vi.advanceTimersByTime(300)
-    expect(document.body.style.position).toBe('relative')
-    expect(document.body.style.overflow).toBe('scroll')
-    expect(document.documentElement.style.overflow).toBe('auto')
-    expect(window.scrollTo).toHaveBeenCalledWith(0, 450)
+    const event = dispatchWheel(50)
+    expect(event.defaultPrevented).toBe(false)
     vi.useRealTimers()
   })
 
   it('calls onDismiss when the backdrop itself is clicked', () => {
     const onDismiss = vi.fn()
-    openIframe('https://one.klappay.com/id/', onDismiss)
+    open('https://one.klappay.com/id/', onDismiss)
 
     getBackdrop()?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
@@ -167,7 +219,7 @@ describe('openIframe', () => {
 
   it('does not call onDismiss when the iframe itself is clicked', () => {
     const onDismiss = vi.fn()
-    openIframe('https://one.klappay.com/id/', onDismiss)
+    open('https://one.klappay.com/id/', onDismiss)
 
     getFrame()?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 

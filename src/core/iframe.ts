@@ -5,7 +5,12 @@ const FRAME_WIDTH = 420
 // whatever screen ends up rendering. It then grows/shrinks into place
 // with the same transition a later resize() uses.
 const LOADING_FRAME_HEIGHT = 360
-const TRANSITION_MS = 200
+// A floor so a short step (e.g. identify, just an OTP input) doesn't look
+// cramped on a tall desktop window — capped at 70vh so it never forces a
+// short browser window into overflow just to hit this floor; a genuinely
+// taller step still grows past it exactly like today.
+const MIN_FRAME_HEIGHT = 480
+const TRANSITION_MS = 320
 // A pronounced ease-out — most of the motion happens up front, so the
 // modal feels like it's settling into place rather than still catching up
 // by the time someone starts reading it.
@@ -16,8 +21,10 @@ export interface IframeHandle {
   resize: (height: number) => void
 }
 
-function css(): string {
-  return `
+// Built once at module load, not per open() call — the CSS only ever
+// depends on the module-level constants above, which never change at
+// runtime.
+const IFRAME_CSS = `
     .backdrop {
       position: fixed;
       inset: 0;
@@ -59,6 +66,7 @@ function css(): string {
       width: ${FRAME_WIDTH}px;
       max-width: calc(100vw - 32px);
       height: ${LOADING_FRAME_HEIGHT}px;
+      min-height: min(${MIN_FRAME_HEIGHT}px, 70vh);
       /* No max-height clamp — one-id measures its own content against the
          height it's actually given via resize(), with no idea this box
          might otherwise get cut shorter than that. Clamping here would
@@ -71,7 +79,7 @@ function css(): string {
       border-radius: 12px;
       background: #000;
       opacity: 0;
-      transform: translateY(-16px);
+      transform: translateY(-32px) scale(0.96);
       transition:
         height ${TRANSITION_MS}ms ${TRANSITION_EASING},
         opacity ${TRANSITION_MS}ms ${TRANSITION_EASING},
@@ -79,10 +87,9 @@ function css(): string {
     }
     .frame.visible {
       opacity: 1;
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
     }
   `
-}
 
 // A modal overlay + <iframe>, isolated in Shadow DOM so neither the
 // merchant page's CSS nor ours can leak across the boundary — same
@@ -93,7 +100,7 @@ export function openIframe(url: string, onDismiss: () => void): IframeHandle {
   const shadow = host.attachShadow({ mode: 'open' })
 
   const style = document.createElement('style')
-  style.textContent = css()
+  style.textContent = IFRAME_CSS
 
   const backdrop = document.createElement('div')
   backdrop.className = 'backdrop'
@@ -110,26 +117,22 @@ export function openIframe(url: string, onDismiss: () => void): IframeHandle {
   document.body.append(host)
 
   // The backdrop already covers the full viewport, but the merchant's own
-  // page behind it can still be taller than the screen — without this, it
-  // keeps scrolling right along with the modal open on top of it.
-  // `overflow: hidden` alone doesn't reliably stop that (a wheel/trackpad
-  // gesture can still move window.scrollY in some browsers even with it
-  // set on both <html> and <body>) — pinning <body> itself with `position:
-  // fixed` is what actually removes it from the scrollable area, the same
-  // technique every body-scroll-lock library uses. Restored once the
-  // modal is actually gone, not when close() is first called, so the page
-  // doesn't jump/reflow while the exit transition is still playing.
-  const scrollY = window.scrollY
-  const previousBodyPosition = document.body.style.position
-  const previousBodyTop = document.body.style.top
-  const previousBodyWidth = document.body.style.width
-  const previousBodyOverflow = document.body.style.overflow
-  const previousHtmlOverflow = document.documentElement.style.overflow
-  document.body.style.position = 'fixed'
-  document.body.style.top = `-${scrollY}px`
-  document.body.style.width = '100%'
-  document.body.style.overflow = 'hidden'
-  document.documentElement.style.overflow = 'hidden'
+  // page behind it can still be taller than the screen — without this, a
+  // wheel/trackpad gesture over the backdrop keeps scrolling it right along
+  // with the modal open on top. This never touches the merchant page's own
+  // <body>/<html> (no inline styles, nothing to restore) — same technique
+  // react-remove-scroll (what Radix's Dialog/Popover use under the hood)
+  // applies: only cancel a wheel/touch gesture once the backdrop itself has
+  // nowhere left to scroll in that direction, so it still scrolls normally
+  // on its own long content instead of just blocking everything outright.
+  function preventScrollChaining(event: WheelEvent): void {
+    const atTop = backdrop.scrollTop <= 0
+    const atBottom = backdrop.scrollTop + backdrop.clientHeight >= backdrop.scrollHeight
+    if ((event.deltaY < 0 && atTop) || (event.deltaY > 0 && atBottom)) {
+      event.preventDefault()
+    }
+  }
+  document.addEventListener('wheel', preventScrollChaining, { passive: false })
 
   // The elements have to actually paint in their initial (invisible)
   // state before adding `visible` for the transition to run — flipping
@@ -158,12 +161,7 @@ export function openIframe(url: string, onDismiss: () => void): IframeHandle {
     function remove(): void {
       if (removed) return
       removed = true
-      document.body.style.position = previousBodyPosition
-      document.body.style.top = previousBodyTop
-      document.body.style.width = previousBodyWidth
-      document.body.style.overflow = previousBodyOverflow
-      document.documentElement.style.overflow = previousHtmlOverflow
-      window.scrollTo(0, scrollY)
+      document.removeEventListener('wheel', preventScrollChaining)
       host.remove()
     }
 

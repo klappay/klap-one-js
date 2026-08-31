@@ -74,8 +74,8 @@ once per checkout no matter which trigger wins that race.
 ## Resizing
 
 The iframe opens at a fixed `420×360` — a neutral loading size, not a
-guess at any real screen's height — and animates in (a slight slide down
-+ fade, ~200ms) at the same time the backdrop fades in. From there it
+guess at any real screen's height — and animates in (a slide down + scale
++ fade, ~320ms) at the same time the backdrop fades in. From there it
 resizes in response to `klappay:resize` messages the checkout sends as
 its own content's height changes, growing/shrinking with the same
 transition timing, so you never need to guess a height up front or leave
@@ -92,11 +92,22 @@ document and unstyleable from this side of the bridge. The backdrop
 scrolls instead (with its own styled scrollbar) on the rare step that's
 genuinely taller than the viewport.
 
-The merchant page's own `<body>` is pinned with `position: fixed` for as
-long as the modal is open (restored, scroll position included, once it's
-actually gone), so a page taller than the screen can't keep scrolling
-behind it — `overflow: hidden` alone doesn't reliably stop a real
-wheel/trackpad gesture from doing that in every browser.
+The frame does have a `min-height: min(480px, 70vh)`, though — a short
+step (identify is just an OTP input) would otherwise look cramped on a
+tall desktop window, so the frame keeps a sensible floor instead of
+hugging every step's exact content height. Capped at `70vh` rather than a
+flat `480px` so that floor never itself forces a short browser window
+into overflow just to be met — a genuinely taller step still grows past
+it exactly as before.
+
+A page taller than the screen can't keep scrolling behind the backdrop
+either, without ever touching the merchant page's own `<body>`/`<html>` —
+the same technique `react-remove-scroll` (what Radix's `Dialog`/`Popover`
+use under the hood) applies: a `wheel` listener on `document`, only
+calling `preventDefault()` once the backdrop itself has nowhere left to
+scroll in that direction. A step still scrolls normally on its own long
+content instead of every gesture just getting blocked outright — the
+listener comes off `document` again the moment the modal closes.
 
 ## See it running
 
