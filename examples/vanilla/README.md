@@ -72,10 +72,11 @@ needs real credentials.
 ## Always tests against the local build
 
 This example depends on `@klappay/one` via `"file:../.."` — always this repo's
-own `dist/`, never a version from npm. Run `pnpm build` at the repo root
-whenever the library changes; this example (already installed) picks it up
-immediately since it's a real filesystem link, no `pnpm install`, link, or
-unlink step needed.
+own `dist/`, never a version from npm. That's not a live link, though: pnpm
+snapshots `file:` dependencies into its store at install time, so after
+`pnpm build` at the repo root, re-run `pnpm install` in this folder to pick up
+the change (a fresh clone's first install already gets whatever's currently
+built).
 
 CI separately verifies `@klappay/one@latest` — the real npm release — still
 satisfies this example, in a non-blocking job (see the repo's own

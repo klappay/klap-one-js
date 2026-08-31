@@ -41,9 +41,11 @@ whatever happens to be published. No `pnpm-lock.yaml` is committed under
 with npm's registry).
 
 Run `pnpm build` at the repo root before running an example the first
-time, and again after changing the library — since it's a real filesystem
-link, each example (already `pnpm install`ed) picks up the new `dist/`
-immediately, no re-install, link, or unlink step needed.
+time. That's not a live link, though: pnpm snapshots `file:` dependencies
+into its store at install time, so after changing the library, re-run
+`pnpm build` and then `pnpm install` inside the example to pick up the
+change (a fresh clone's first install already gets whatever's currently
+built).
 
 ## Tests
 
