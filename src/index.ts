@@ -8,14 +8,22 @@ registerKlappayButton()
 
 // Node (SSR/static generation) has no `document` — registerKlappayButton()
 // guards itself against a missing customElements, but wireExisting()/
-// observeNewElements() default to reading `document` as soon as they're
-// called, so the call itself has to be skipped there, not just its args.
+// observeNewElements() default to reading `document`/`document.body` as
+// soon as they're called, so both calls have to wait for the same
+// readiness this repo's own docs recommend (a plain <script> tag, which
+// runs synchronously while <head> is still being parsed — document.body
+// doesn't exist yet at that point, so observeNewElements() would crash
+// trying to observe(null) if it ran outside this gate, same as
+// wireExisting() would if it read document.body itself).
 if (typeof document !== 'undefined') {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => wireExisting())
-  } else {
+  function init(): void {
     wireExisting()
+    observeNewElements()
   }
 
-  observeNewElements()
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init)
+  } else {
+    init()
+  }
 }
