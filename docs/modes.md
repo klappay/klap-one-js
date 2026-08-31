@@ -73,10 +73,18 @@ once per checkout no matter which trigger wins that race.
 
 ## Resizing
 
-The iframe starts at a fixed `420×720` and resizes in response to
-`klappay:resize` messages the checkout sends as its own content's height
-changes — you never need to guess a height up front or leave dead
+The iframe opens at a fixed `420×360` — a neutral loading size, not a
+guess at any real screen's height — and animates (fade + scale in, ~200ms)
+to that size at the same time the backdrop fades in. From there it resizes
+in response to `klappay:resize` messages the checkout sends as its own
+content's height changes, growing/shrinking with the same transition
+timing, so you never need to guess a height up front or leave dead
 whitespace around a shorter step in the flow (e.g. an error screen).
+Closing reverses the same transition before the modal actually leaves the
+DOM.
+
+Both dimensions are still capped at `calc(100vw/vh - 32px)` — the modal
+never grows past the viewport regardless of what a step reports.
 
 ## See it running
 

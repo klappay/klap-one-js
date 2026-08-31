@@ -30,13 +30,50 @@ describe('openIframe', () => {
     expect(getFrame()?.style.height).toBe('500px')
   })
 
-  it('removes the host element from the document via close()', () => {
+  it('still becomes visible via the fallback timer if requestAnimationFrame never fires', () => {
+    vi.useFakeTimers()
+    // Simulates a backgrounded tab, where a real browser throttles rAF to
+    // a stop — the modal would otherwise stay stuck at opacity: 0 forever.
+    const originalRAF = window.requestAnimationFrame
+    window.requestAnimationFrame = vi.fn()
+
+    openIframe('https://one.klappay.com/id/', vi.fn())
+    expect(getBackdrop()?.classList.contains('visible')).toBe(false)
+
+    vi.advanceTimersByTime(200)
+    expect(getBackdrop()?.classList.contains('visible')).toBe(true)
+
+    window.requestAnimationFrame = originalRAF
+    vi.useRealTimers()
+  })
+
+  it('removes the host element from the document via close(), after the exit transition', () => {
+    vi.useFakeTimers()
     const handle = openIframe('https://one.klappay.com/id/', vi.fn())
     expect(document.body.lastElementChild?.shadowRoot).toBeTruthy()
 
     handle.close()
+    // jsdom never fires a real `transitionend`, so this only proves close()
+    // isn't synchronous anymore — the fallback timeout below is what
+    // actually removes it, same as it would in a browser if the CSS
+    // transition itself never completed for some reason.
+    expect(getFrame()).toBeTruthy()
 
+    vi.advanceTimersByTime(300)
     expect(getFrame()).toBeFalsy()
+    vi.useRealTimers()
+  })
+
+  it('does not throw when close() is called more than once', () => {
+    vi.useFakeTimers()
+    const handle = openIframe('https://one.klappay.com/id/', vi.fn())
+
+    handle.close()
+    expect(() => handle.close()).not.toThrow()
+
+    vi.advanceTimersByTime(300)
+    expect(getFrame()).toBeFalsy()
+    vi.useRealTimers()
   })
 
   it('calls onDismiss when the backdrop itself is clicked', () => {
