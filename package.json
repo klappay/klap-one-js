@@ -1,6 +1,6 @@
 {
   "name": "@klappay/one",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "license": "MIT",
   "description": "Klappay One's embeddable payment button — opens the hosted identity/wallet popup (one-id) and relays the result via postMessage. Never touches a private key or a session token; framework-agnostic core with a thin React wrapper.",
   "keywords": ["klap", "klappay", "payments", "crypto", "web3", "widget"],
