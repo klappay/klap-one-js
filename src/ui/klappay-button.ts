@@ -233,6 +233,12 @@ export class KlappayButtonElement extends KlappayButtonBase {
       origin,
       locale,
       mode: mode === 'iframe' || mode === 'popup' ? mode : undefined,
+      // Not a terminal outcome — the button stays busy/disabled exactly as
+      // it already is, this only forwards the signal for a page that wants
+      // to persist state before the wallet responds.
+      onPending: () => {
+        this.dispatchEvent(new CustomEvent('pending'))
+      },
       onSuccess: (result) => {
         reenable()
         this.dispatchEvent(new CustomEvent('success', { detail: result }))
@@ -241,9 +247,9 @@ export class KlappayButtonElement extends KlappayButtonBase {
         reenable()
         this.dispatchEvent(new CustomEvent('error', { detail: error }))
       },
-      onCancel: () => {
+      onCancel: (reason) => {
         reenable()
-        this.dispatchEvent(new CustomEvent('cancel'))
+        this.dispatchEvent(new CustomEvent('cancel', { detail: { reason } }))
       },
     }).open()
   }

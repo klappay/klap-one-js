@@ -29,10 +29,27 @@ there's no shared package between the two repos to enforce it:
 type BridgeMessage =
   | { type: 'klappay:ready'; requestId: string }
   | { type: 'klappay:resize'; requestId: string; height: number }
+  | { type: 'klappay:pending'; requestId: string }
   | { type: 'klappay:success'; requestId: string; result: PaymentResult }
   | { type: 'klappay:error'; requestId: string; error: { code: string; message: string } }
   | { type: 'klappay:cancel'; requestId: string }
 ```
+
+`klappay:pending` is sent right before `one-id` asks the wallet to
+sign/send — before it has responded at all, so there's no `txHash` or any
+other payload yet. It exists purely so an integrator can persist "a
+payment attempt is underway" ahead of a possible reload/close; `onPending`
+is not a terminal outcome and doesn't re-enable the button the way
+`onSuccess`/`onError`/`onCancel` do.
+
+`klappay:cancel` only ever means a deliberate in-page Cancel click — this
+package's own `onCancel` config callback receives a second possible
+`reason`, `'closed'`, that `one-id` never sends: `core/klappay-one.ts`
+synthesizes it locally when a popup disappears (closed via the browser's
+own UI) with no bridge message at all, since there was no chance for
+`one-id` to report anything. A caller that wants to distinguish "the payer
+explicitly backed out" from "we genuinely don't know what happened" should
+branch on this reason, not treat every cancel the same.
 
 - **`chargeId`/`requestId`/`locale`/`returnOrigin` travel in the popup/
   iframe URL itself** (`/id/?chargeId=X&requestId=Y&locale=en&returnOrigin=https://merchant.com`)

@@ -72,6 +72,7 @@ export function createKlappayOne(config: KlappayOneConfig): KlappayOne {
 
     const stopListening = listen(config.origin, requestId, {
       onReady: config.onReady,
+      onPending: config.onPending,
       onSuccess: (result) => {
         stop()
         config.onSuccess?.(result)
@@ -80,9 +81,9 @@ export function createKlappayOne(config: KlappayOneConfig): KlappayOne {
         stop()
         config.onError?.(error)
       },
-      onCancel: () => {
+      onCancel: (reason) => {
         stop()
-        config.onCancel?.()
+        config.onCancel?.(reason)
       },
       onTimeout: () => {
         stop()
@@ -93,7 +94,7 @@ export function createKlappayOne(config: KlappayOneConfig): KlappayOne {
     const pollClosed = setInterval(() => {
       if (isPopupClosed(popup)) {
         stop()
-        config.onCancel?.()
+        config.onCancel?.('closed')
       }
     }, POPUP_CLOSED_POLL_MS)
 
@@ -124,13 +125,20 @@ export function createKlappayOne(config: KlappayOneConfig): KlappayOne {
       run()
     }
 
-    const frame = openIframe(url, () => settleOnce(() => config.onCancel?.()))
+    const frame = openIframe(url, () => settleOnce(() => config.onCancel?.('user')))
 
     const stopListening = listen(config.origin, requestId, {
       onReady: config.onReady,
+      // Not wrapped in settleOnce — this isn't a terminal outcome, and the
+      // payment is now past the point where a backdrop dismiss should be
+      // allowed to silently orphan it.
+      onPending: () => {
+        frame.setDismissable(false)
+        config.onPending?.()
+      },
       onSuccess: (result) => settleOnce(() => config.onSuccess?.(result)),
       onError: (error) => settleOnce(() => config.onError?.(error)),
-      onCancel: () => settleOnce(() => config.onCancel?.()),
+      onCancel: (reason) => settleOnce(() => config.onCancel?.(reason)),
       onResize: (height) => frame.resize(height),
       // A merchant CSP blocking frame-src/child-src for this domain would
       // otherwise leave the iframe silently blank forever — one automatic

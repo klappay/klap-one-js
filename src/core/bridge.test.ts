@@ -123,8 +123,18 @@ describe('listen', () => {
     expect(onError).toHaveBeenCalledWith(error)
 
     dispatch(klapOneOrigin, { type: 'klappay:cancel', requestId })
-    expect(onCancel).toHaveBeenCalledTimes(1)
+    expect(onCancel).toHaveBeenCalledWith('user')
 
+    stop()
+  })
+
+  it('routes pending to its handler', () => {
+    const onPending = vi.fn()
+    const stop = listen(klapOneOrigin, requestId, { onPending })
+
+    dispatch(klapOneOrigin, { type: 'klappay:pending', requestId })
+
+    expect(onPending).toHaveBeenCalledTimes(1)
     stop()
   })
 

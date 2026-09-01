@@ -80,11 +80,35 @@ describe('auto-wire', () => {
     }
     passedConfig?.onSuccess?.(result)
     passedConfig?.onError?.({ code: 'payment_failed', message: 'nope' })
-    passedConfig?.onCancel?.()
+    passedConfig?.onCancel?.('user')
 
     expect(onSuccess).toHaveBeenCalledTimes(1)
     expect(onError).toHaveBeenCalledTimes(1)
     expect(onCancel).toHaveBeenCalledTimes(1)
+  })
+
+  it('dispatches pending without clearing busy state, then forwards the cancel reason', () => {
+    document.body.innerHTML = `<button ${AUTO_WIRE_ATTRIBUTE}="ch_123" ${AUTO_WIRE_ORIGIN_ATTRIBUTE}="https://one.klappay.com">Pay</button>`
+    wireExisting()
+    const button = document.querySelector('button')
+    const onPending = vi.fn()
+    const onCancel = vi.fn()
+    button?.addEventListener('pending', onPending)
+    button?.addEventListener('cancel', onCancel)
+
+    button?.click()
+    const passedConfig = vi.mocked(klappayOneModule.createKlappayOne).mock.calls[0]?.[0]
+    passedConfig?.onPending?.()
+
+    expect(onPending).toHaveBeenCalledTimes(1)
+    button?.click()
+    expect(klappayOneModule.createKlappayOne).toHaveBeenCalledTimes(1)
+
+    passedConfig?.onCancel?.('closed')
+
+    expect(onCancel).toHaveBeenCalledWith(expect.objectContaining({ detail: { reason: 'closed' } }))
+    button?.click()
+    expect(klappayOneModule.createKlappayOne).toHaveBeenCalledTimes(2)
   })
 
   it('ignores a second click while a checkout is already in flight', () => {
@@ -105,7 +129,7 @@ describe('auto-wire', () => {
 
     button?.click()
     const passedConfig = vi.mocked(klappayOneModule.createKlappayOne).mock.calls[0]?.[0]
-    passedConfig?.onCancel?.()
+    passedConfig?.onCancel?.('user')
     button?.click()
 
     expect(klappayOneModule.createKlappayOne).toHaveBeenCalledTimes(2)

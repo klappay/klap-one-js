@@ -43,6 +43,9 @@ function wire(element: Element): void {
       origin,
       locale,
       mode: mode === 'iframe' || mode === 'popup' ? mode : undefined,
+      onPending: () => {
+        element.dispatchEvent(new CustomEvent('pending'))
+      },
       onSuccess: (result) => {
         clearBusy()
         element.dispatchEvent(new CustomEvent('success', { detail: result }))
@@ -51,9 +54,9 @@ function wire(element: Element): void {
         clearBusy()
         element.dispatchEvent(new CustomEvent('error', { detail: error }))
       },
-      onCancel: () => {
+      onCancel: (reason) => {
         clearBusy()
-        element.dispatchEvent(new CustomEvent('cancel'))
+        element.dispatchEvent(new CustomEvent('cancel', { detail: { reason } }))
       },
     }).open()
   })

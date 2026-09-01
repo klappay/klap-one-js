@@ -19,6 +19,7 @@ const TRANSITION_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)'
 export interface IframeHandle {
   close: () => void
   resize: (height: number) => void
+  setDismissable: (canDismiss: boolean) => void
 }
 
 // Built once at module load, not per open() call — the CSS only ever
@@ -102,10 +103,16 @@ export function openIframe(url: string, onDismiss: () => void): IframeHandle {
   const style = document.createElement('style')
   style.textContent = IFRAME_CSS
 
+  // Gated by setDismissable() below — once a payment attempt is past the
+  // point of no return (the wallet has been asked to sign/send), a
+  // backdrop click must not silently orphan it the way closing the modal
+  // otherwise would.
+  let dismissable = true
+
   const backdrop = document.createElement('div')
   backdrop.className = 'backdrop'
   backdrop.addEventListener('click', (event) => {
-    if (event.target === backdrop) onDismiss()
+    if (event.target === backdrop && dismissable) onDismiss()
   })
 
   const frame = document.createElement('iframe')
@@ -188,6 +195,9 @@ export function openIframe(url: string, onDismiss: () => void): IframeHandle {
     close,
     resize: (height) => {
       frame.style.height = `${height}px`
+    },
+    setDismissable: (canDismiss) => {
+      dismissable = canDismiss
     },
   }
 }

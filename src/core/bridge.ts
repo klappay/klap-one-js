@@ -7,6 +7,7 @@ import type { KlappayOneError, PaymentResult } from './types'
 type BridgeMessage =
   | { type: 'klappay:ready'; requestId: string }
   | { type: 'klappay:resize'; requestId: string; height: number }
+  | { type: 'klappay:pending'; requestId: string }
   | { type: 'klappay:success'; requestId: string; result: PaymentResult }
   | { type: 'klappay:error'; requestId: string; error: KlappayOneError }
   | { type: 'klappay:cancel'; requestId: string }
@@ -15,9 +16,15 @@ export const READY_TIMEOUT_MS = 10_000
 
 export interface BridgeHandlers {
   onReady?: () => void
+  onPending?: () => void
   onSuccess?: (result: PaymentResult) => void
   onError?: (error: KlappayOneError) => void
-  onCancel?: () => void
+  // A bridge-sourced cancel only ever comes from the in-page Cancel
+  // button (web/src/lib/bridge.ts's sendCancel in klap-one) — always
+  // 'user'. The other possible reason, 'closed', is synthesized entirely
+  // outside this module by core/klappay-one.ts's popup-closed poll, which
+  // never receives a bridge message at all.
+  onCancel?: (reason: 'user' | 'closed') => void
   onTimeout?: () => void
   onResize?: (height: number) => void
 }
@@ -63,7 +70,10 @@ export function listen(
         handlers.onError?.(message.error)
         return
       case 'klappay:cancel':
-        handlers.onCancel?.()
+        handlers.onCancel?.('user')
+        return
+      case 'klappay:pending':
+        handlers.onPending?.()
         return
       case 'klappay:resize':
         handlers.onResize?.(message.height)

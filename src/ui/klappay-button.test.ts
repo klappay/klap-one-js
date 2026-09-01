@@ -230,11 +230,31 @@ describe('klappay-button', () => {
     }
     passedConfig?.onSuccess?.(result)
     passedConfig?.onError?.({ code: 'payment_failed', message: 'nope' })
-    passedConfig?.onCancel?.()
+    passedConfig?.onCancel?.('user')
 
     expect(onSuccess).toHaveBeenCalledTimes(1)
     expect(onError).toHaveBeenCalledTimes(1)
     expect(onCancel).toHaveBeenCalledTimes(1)
+  })
+
+  it('dispatches a pending DOM event with the cancel reason forwarded, without re-enabling the button', () => {
+    const el = mount({ 'charge-id': 'ch_123', origin: 'https://one.klappay.com' })
+    const onPending = vi.fn()
+    const onCancel = vi.fn()
+    el.addEventListener('pending', onPending)
+    el.addEventListener('cancel', onCancel)
+    const button = el.shadowRoot?.querySelector('button')
+
+    button?.click()
+    const passedConfig = vi.mocked(klappayOneModule.createKlappayOne).mock.calls[0]?.[0]
+    passedConfig?.onPending?.()
+
+    expect(onPending).toHaveBeenCalledTimes(1)
+    expect(button?.disabled).toBe(true)
+
+    passedConfig?.onCancel?.('closed')
+    expect(onCancel).toHaveBeenCalledWith(expect.objectContaining({ detail: { reason: 'closed' } }))
+    expect(button?.disabled).toBe(false)
   })
 
   it('disables the button while a checkout is in flight and ignores a second click', () => {
@@ -254,7 +274,7 @@ describe('klappay-button', () => {
 
     button?.click()
     const passedConfig = vi.mocked(klappayOneModule.createKlappayOne).mock.calls[0]?.[0]
-    passedConfig?.onCancel?.()
+    passedConfig?.onCancel?.('user')
 
     expect(button?.disabled).toBe(false)
     button?.click()

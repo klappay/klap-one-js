@@ -27,9 +27,19 @@ export interface KlappayOneConfig {
   // core/device.ts) — set explicitly to force one or the other.
   mode?: 'iframe' | 'popup'
   onReady?: () => void
+  // Fires once one-id is about to ask the wallet to sign/send — before it
+  // has responded at all. No payload: there's nothing verifiable yet (no
+  // txHash), this is purely a "something is about to become irreversible"
+  // signal for a caller that wants to persist state ahead of a possible
+  // reload/close.
+  onPending?: () => void
   onSuccess?: (result: PaymentResult) => void
   onError?: (error: KlappayOneError) => void
-  onCancel?: () => void
+  // 'user' is a deliberate in-page Cancel click relayed over the bridge.
+  // 'closed' is synthesized locally (see core/klappay-one.ts's popup-closed
+  // poll) when a popup disappears with no bridge message at all — there was
+  // no chance for one-id to report anything, cancel or otherwise.
+  onCancel?: (reason: 'user' | 'closed') => void
 }
 
 export interface KlappayOne {

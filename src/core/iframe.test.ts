@@ -225,4 +225,25 @@ describe('openIframe', () => {
 
     expect(onDismiss).not.toHaveBeenCalled()
   })
+
+  it('ignores a backdrop click once setDismissable(false) is called', () => {
+    const onDismiss = vi.fn()
+    const handle = open('https://one.klappay.com/id/', onDismiss)
+
+    handle.setDismissable(false)
+    getBackdrop()?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+    expect(onDismiss).not.toHaveBeenCalled()
+  })
+
+  it('allows a backdrop click again once setDismissable(true) re-enables it', () => {
+    const onDismiss = vi.fn()
+    const handle = open('https://one.klappay.com/id/', onDismiss)
+
+    handle.setDismissable(false)
+    handle.setDismissable(true)
+    getBackdrop()?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+    expect(onDismiss).toHaveBeenCalledTimes(1)
+  })
 })
