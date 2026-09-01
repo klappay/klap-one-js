@@ -1,7 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as bridge from './bridge'
 import type { BridgeHandlers } from './bridge'
-import * as device from './device'
 import * as iframeModule from './iframe'
 import { configure, createKlappayOne, getGlobalConfig } from './klappay-one'
 import * as popup from './popup'
@@ -20,17 +19,12 @@ vi.mock('./iframe', () => ({
   openIframe: vi.fn(),
 }))
 
-vi.mock('./device', () => ({
-  isMobileUserAgent: vi.fn(),
-}))
-
 // Fake timers so createKlappayOne's popup-closed poll interval never
 // ticks unless a test explicitly advances it — otherwise it keeps
 // running against the shared mocks after its own test finishes.
 beforeEach(() => {
   vi.clearAllMocks()
   vi.useFakeTimers()
-  vi.mocked(device.isMobileUserAgent).mockReturnValue(false)
   vi.mocked(iframeModule.openIframe).mockReturnValue({
     close: vi.fn(),
     resize: vi.fn(),
@@ -57,28 +51,14 @@ describe('configure/getGlobalConfig', () => {
 describe('createKlappayOne — mode selection', () => {
   const config = { chargeId: 'ch_123', origin: 'https://one.klappay.com' }
 
-  it('opens via iframe on desktop by default', () => {
-    vi.mocked(device.isMobileUserAgent).mockReturnValue(false)
-
+  it('opens via iframe by default, regardless of device', () => {
     createKlappayOne(config).open()
 
     expect(iframeModule.openIframe).toHaveBeenCalledTimes(1)
     expect(popup.openPopup).not.toHaveBeenCalled()
   })
 
-  it('opens via popup on mobile by default', () => {
-    vi.mocked(device.isMobileUserAgent).mockReturnValue(true)
-    vi.mocked(popup.openPopup).mockReturnValue({ closed: false } as Window)
-    vi.mocked(popup.isPopupClosed).mockReturnValue(false)
-
-    createKlappayOne(config).open()
-
-    expect(popup.openPopup).toHaveBeenCalledTimes(1)
-    expect(iframeModule.openIframe).not.toHaveBeenCalled()
-  })
-
-  it('an explicit mode overrides the mobile/desktop default', () => {
-    vi.mocked(device.isMobileUserAgent).mockReturnValue(false)
+  it('an explicit mode: popup overrides the iframe default', () => {
     vi.mocked(popup.openPopup).mockReturnValue({ closed: false } as Window)
     vi.mocked(popup.isPopupClosed).mockReturnValue(false)
 
@@ -86,6 +66,13 @@ describe('createKlappayOne — mode selection', () => {
 
     expect(popup.openPopup).toHaveBeenCalledTimes(1)
     expect(iframeModule.openIframe).not.toHaveBeenCalled()
+  })
+
+  it('an explicit mode: iframe is the same as the default', () => {
+    createKlappayOne({ ...config, mode: 'iframe' }).open()
+
+    expect(iframeModule.openIframe).toHaveBeenCalledTimes(1)
+    expect(popup.openPopup).not.toHaveBeenCalled()
   })
 })
 
@@ -197,6 +184,23 @@ describe('createKlappayOne — popup mode', () => {
     capturedHandlers().onConfirming?.({ txHash: '0xabc', network: 'base' })
 
     expect(onConfirming).toHaveBeenCalledWith({ txHash: '0xabc', network: 'base' })
+    expect(stop).not.toHaveBeenCalled()
+  })
+
+  it('forwards onReconnecting without stopping — a popup is exposed to backgrounding too', () => {
+    const fakePopup = { closed: false } as Window
+    vi.mocked(popup.openPopup).mockReturnValue(fakePopup)
+    vi.mocked(popup.isPopupClosed).mockReturnValue(false)
+    const stop = vi.fn()
+    vi.mocked(bridge.listen).mockReturnValue(stop)
+    const onReconnecting = vi.fn()
+
+    createKlappayOne({ ...config, onReconnecting }).open()
+    capturedHandlers().onReconnecting?.('started')
+    capturedHandlers().onReconnecting?.('recovered')
+
+    expect(onReconnecting).toHaveBeenNthCalledWith(1, 'started')
+    expect(onReconnecting).toHaveBeenNthCalledWith(2, 'recovered')
     expect(stop).not.toHaveBeenCalled()
   })
 
@@ -342,6 +346,20 @@ describe('createKlappayOne — iframe mode', () => {
     capturedHandlers().onConfirming?.({ txHash: '0xabc', network: 'base' })
 
     expect(onConfirming).toHaveBeenCalledWith({ txHash: '0xabc', network: 'base' })
+    expect(frame.setDismissable).not.toHaveBeenCalled()
+    expect(frame.close).not.toHaveBeenCalled()
+  })
+
+  it('forwards onReconnecting without disabling dismissal, closing, or settling', () => {
+    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
+    vi.mocked(iframeModule.openIframe).mockReturnValue(frame)
+    vi.mocked(bridge.listen).mockReturnValue(vi.fn())
+    const onReconnecting = vi.fn()
+
+    createKlappayOne({ ...config, onReconnecting }).open()
+    capturedHandlers().onReconnecting?.('failed')
+
+    expect(onReconnecting).toHaveBeenCalledWith('failed')
     expect(frame.setDismissable).not.toHaveBeenCalled()
     expect(frame.close).not.toHaveBeenCalled()
   })

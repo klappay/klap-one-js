@@ -163,16 +163,77 @@ describe('listen', () => {
     stop()
   })
 
+  it('routes reconnecting to its handler', () => {
+    const onReconnecting = vi.fn()
+    const stop = listen(klapOneOrigin, requestId, { onReconnecting })
+
+    dispatch(klapOneOrigin, { type: 'klappay:reconnecting', requestId, state: 'started' })
+
+    expect(onReconnecting).toHaveBeenCalledWith('started')
+    stop()
+  })
+
+  it('ignores a klappay:reconnecting message with an invalid state', () => {
+    const onReconnecting = vi.fn()
+    const stop = listen(klapOneOrigin, requestId, { onReconnecting })
+
+    dispatch(klapOneOrigin, {
+      type: 'klappay:reconnecting',
+      requestId,
+      state: '<script>alert(1)</script>',
+    })
+
+    expect(onReconnecting).not.toHaveBeenCalled()
+    stop()
+  })
+
+  it('does not forward a klappay:reconnecting repeat of the same state', () => {
+    const onReconnecting = vi.fn()
+    const stop = listen(klapOneOrigin, requestId, { onReconnecting })
+
+    dispatch(klapOneOrigin, { type: 'klappay:reconnecting', requestId, state: 'started' })
+    dispatch(klapOneOrigin, { type: 'klappay:reconnecting', requestId, state: 'started' })
+    dispatch(klapOneOrigin, { type: 'klappay:reconnecting', requestId, state: 'recovered' })
+
+    expect(onReconnecting).toHaveBeenCalledTimes(2)
+    expect(onReconnecting).toHaveBeenNthCalledWith(1, 'started')
+    expect(onReconnecting).toHaveBeenNthCalledWith(2, 'recovered')
+    stop()
+  })
+
+  it('ignores a klappay:success message with a malformed result', () => {
+    const onSuccess = vi.fn()
+    const stop = listen(klapOneOrigin, requestId, { onSuccess })
+
+    dispatch(klapOneOrigin, { type: 'klappay:success', requestId, result: { txHash: '0xabc' } })
+
+    expect(onSuccess).not.toHaveBeenCalled()
+    stop()
+  })
+
+  it('ignores a klappay:error message with a malformed error', () => {
+    const onError = vi.fn()
+    const stop = listen(klapOneOrigin, requestId, { onError })
+
+    dispatch(klapOneOrigin, { type: 'klappay:error', requestId, error: { code: 'oops' } })
+
+    expect(onError).not.toHaveBeenCalled()
+    stop()
+  })
+
   it('stops listening and cancels the timeout after stop() is called', () => {
     const onReady = vi.fn()
     const onTimeout = vi.fn()
-    const stop = listen(klapOneOrigin, requestId, { onReady, onTimeout })
+    const onReconnecting = vi.fn()
+    const stop = listen(klapOneOrigin, requestId, { onReady, onTimeout, onReconnecting })
 
     stop()
     dispatch(klapOneOrigin, { type: 'klappay:ready', requestId })
+    dispatch(klapOneOrigin, { type: 'klappay:reconnecting', requestId, state: 'started' })
     vi.advanceTimersByTime(READY_TIMEOUT_MS)
 
     expect(onReady).not.toHaveBeenCalled()
     expect(onTimeout).not.toHaveBeenCalled()
+    expect(onReconnecting).not.toHaveBeenCalled()
   })
 })

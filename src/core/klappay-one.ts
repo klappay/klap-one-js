@@ -1,5 +1,4 @@
 import { buildFrameUrl, listen } from './bridge'
-import { isMobileUserAgent } from './device'
 import { openIframe } from './iframe'
 import { isPopupClosed, openPopup } from './popup'
 import type { KlappayOne, KlappayOneConfig } from './types'
@@ -39,11 +38,18 @@ export function getGlobalConfig(): GlobalConfig {
   return globalConfig
 }
 
-// Mobile defaults to popup, not iframe — see device.ts. Everything else
-// defaults to the iframe/modal renderer, unless the caller forces one
-// explicitly via config.mode.
+// iframe/modal is the unconditional default on every device now — mobile
+// used to default to popup instead, out of an unverified concern that a
+// backgrounded iframe's WalletConnect relay connection wouldn't survive
+// the OS switching to the wallet app and back (see the reconnect
+// handling this module now wires through onReconnecting, and
+// docs/modes.md). A popup tab turned out to have no real protection
+// against that either — the browser freezes an entire backgrounded tab's
+// frame tree together, popup or iframe alike — so this only changes
+// which renderer is chosen by default, not what protects a checkout from
+// backgrounding. `mode` still forces either one explicitly.
 function resolveMode(config: KlappayOneConfig): 'iframe' | 'popup' {
-  return config.mode ?? (isMobileUserAgent(navigator.userAgent) ? 'popup' : 'iframe')
+  return config.mode ?? 'iframe'
 }
 
 export function createKlappayOne(config: KlappayOneConfig): KlappayOne {
@@ -90,6 +96,10 @@ export function createKlappayOne(config: KlappayOneConfig): KlappayOne {
         stop()
         config.onError?.(FRAME_TIMEOUT)
       },
+      // A popup tab is exactly as exposed to backgrounding as an iframe
+      // is (see resolveMode's comment above) — never gated to the iframe
+      // path only.
+      onReconnecting: config.onReconnecting,
     })
 
     const pollClosed = setInterval(() => {
@@ -147,6 +157,12 @@ export function createKlappayOne(config: KlappayOneConfig): KlappayOne {
       // fallback to the popup renderer before giving up and reporting
       // FRAME_TIMEOUT (which openViaPopup does on its own if it also fails).
       onTimeout: () => settleOnce(openViaPopup),
+      // Not wrapped in settleOnce — like onPending/onConfirming, this is
+      // informational, never terminal. one-id drives this autonomously
+      // once it detects its own WalletConnect relay coming back from a
+      // background/foreground cycle; nothing here needs to send anything
+      // back into the iframe for it to act on.
+      onReconnecting: config.onReconnecting,
     })
 
     function stop(): void {

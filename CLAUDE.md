@@ -3,12 +3,11 @@
 Engineering conventions for whoever (human or agent) is editing this
 code — not user-facing documentation (that's `README.md`). This is
 `@klappay/one`, the embeddable payment button a merchant puts on their
-own page — it opens an iframe/modal (desktop, default) or a popup
-(mobile, default — `mode` overrides either way) pointing at `klap-one`'s
-`/id/*` (hosted as `one-id`) and relays the result back via
-`postMessage`. It has no server, no database, and never runs OTP/wallet
-logic itself — see this repo's own `docs/protocol.md` for why the split
-is drawn exactly there.
+own page — it opens an iframe/modal (default on every device — `mode`
+overrides to `'popup'`) pointing at `klap-one`'s `/id/*` (hosted as
+`one-id`) and relays the result back via `postMessage`. It has no server,
+no database, and never runs OTP/wallet logic itself — see this repo's own
+`docs/protocol.md` for why the split is drawn exactly there.
 Conventions below are adapted from `../klap-node`'s `CLAUDE.md` (itself
 trimmed from `../klap-core`), further trimmed/extended for a browser
 SDK, and a new non-negotiable-invariants section since this runs in a

@@ -1,3 +1,5 @@
+import type { ReconnectState } from './bridge'
+
 export type KlappayButtonVariant = 'white' | 'yellow' | 'black'
 export type KlappayButtonSize = 'sm' | 'md' | 'lg'
 export type KlappayButtonLabel = 'full' | 'short'
@@ -24,8 +26,9 @@ export interface KlappayOneConfig {
   chargeId: string
   origin: string
   locale?: string
-  // Defaults to 'iframe' on desktop and 'popup' on mobile (see
-  // core/device.ts) — set explicitly to force one or the other.
+  // Defaults to 'iframe' on every device — set explicitly to force
+  // 'popup' instead. See core/klappay-one.ts's resolveMode for why
+  // mobile no longer defaults to popup.
   mode?: 'iframe' | 'popup'
   onReady?: () => void
   // Fires once one-id is about to ask the wallet to sign/send — before it
@@ -46,6 +49,16 @@ export interface KlappayOneConfig {
   // poll) when a popup disappears with no bridge message at all — there was
   // no chance for one-id to report anything, cancel or otherwise.
   onCancel?: (reason: 'user' | 'closed') => void
+  // Fires when the payer returns from backgrounding the tab/app (e.g.
+  // switching to their wallet app to approve, then coming back) and
+  // one-id has to check whether its WalletConnect relay connection
+  // survived — 'started' while it retries, then 'recovered' or 'failed'.
+  // Purely informational, on both popup and iframe alike (see
+  // core/klappay-one.ts's resolveMode comment on why this isn't
+  // iframe-specific) — safe to ignore; onCancel/onError are unaffected
+  // either way, a 'failed' reconnect still leaves the existing Cancel
+  // button and error paths as the way out.
+  onReconnecting?: (state: ReconnectState) => void
 }
 
 export interface KlappayOne {

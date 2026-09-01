@@ -34,6 +34,7 @@ type BridgeMessage =
   | { type: 'klappay:success'; requestId: string; result: PaymentResult }
   | { type: 'klappay:error'; requestId: string; error: { code: string; message: string } }
   | { type: 'klappay:cancel'; requestId: string }
+  | { type: 'klappay:reconnecting'; requestId: string; state: 'started' | 'recovered' | 'failed' }
 ```
 
 `klappay:pending` is sent right before `one-id` asks the wallet to
@@ -52,6 +53,19 @@ and auto-resume a "confirming" UI from — a `txHash` can be checked against
 Core independently of whatever happens to this checkout afterward
 (reload, tab close, even the popup/iframe itself disappearing), which
 isn't true yet at the `onPending` stage.
+
+`klappay:reconnecting` is sent when `one-id` detects, after the payer
+returns from backgrounding the tab/app (switching to their wallet app to
+approve, then coming back), that its WalletConnect relay connection may
+have dropped — `state: 'started'` while it retries
+(`relayer.restartTransport()`), then `'recovered'` or `'failed'`. Like
+`onPending`/`onConfirming`, never terminal — `onCancel`/`onError` are
+unaffected either way, and a `'failed'` state still leaves `one-id`'s own
+in-checkout retry affordance and Cancel button as the way out. Sent on
+*both* rendering modes, not just the iframe one: a popup tab is exposed to
+the same OS-level backgrounding as an iframe is, since the browser freezes
+an entire backgrounded tab's frame tree together (popup or iframe alike),
+not the frame specifically — see [iframe vs. popup](/modes).
 
 `klappay:cancel` only ever means a deliberate in-page Cancel click — this
 package's own `onCancel` config callback receives a second possible
@@ -103,7 +117,25 @@ Two checks, both required, in this order:
 
 A message failing either check is dropped with no error surfaced and no
 partial trust extended — it's simply as if the message never arrived, not
-a degraded "trust some of it" path.
+a degraded "trust some of it" path. `isBridgeMessage` also validates every
+field a given `type` actually carries (a `state` on `klappay:reconnecting`
+really is one of the three known literals, a `result` on `klappay:success`
+really has every `PaymentResult` field, etc.) — not just the `type`/
+`requestId` envelope every variant shares.
+
+**What this defends against, precisely: a genuinely separate page or frame
+reaching into your checkout** — a different tab, a stale popup, another
+site entirely. It does **not**, and structurally cannot, defend against a
+script running in the *same JS realm* as this package — a compromised (or
+malicious) third-party `<script>` tag on an otherwise-honest merchant
+page. That script shares `window` with `one-js` and can dispatch its own
+synthetic `MessageEvent` with any `origin`/`requestId`/payload it likes;
+no client-side check can distinguish that from the real thing, because
+there's nothing left to check once the attacker's code and this package's
+code are the same trust domain. This is exactly why `onSuccess` is
+documented above as a UX signal only, never proof of payment — the actual
+defense against that scenario is server-side (Core's webhook), not
+anything this package's bridge validation can provide.
 
 ## The popup/iframe content is never white-labeled
 

@@ -2,9 +2,9 @@
 
 `@klappay/one` is the embeddable payment button for Klappay One. It never
 proposes a transaction, never signs anything, and never sees a private key
-or a session token — it just opens a modal (an iframe, on desktop) or a
-popup (mobile) pointing at Klappay's own hosted identity/wallet flow, and
-relays the outcome back to your page via `postMessage`. Everything sensitive
+or a session token — it just opens a modal (an iframe, by default) or a
+popup pointing at Klappay's own hosted identity/wallet flow, and relays
+the outcome back to your page via `postMessage`. Everything sensitive
 — OTP, wallet selection, WalletConnect, signing — happens entirely on
 Klappay's own origin. See [Protocol & security](/protocol) for exactly how
 that boundary is enforced.

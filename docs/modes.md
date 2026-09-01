@@ -10,19 +10,26 @@ checkout is mounted, chosen for you unless you override it.
 
 ```ts
 function resolveMode(config) {
-  return config.mode ?? (isMobileUserAgent(navigator.userAgent) ? 'popup' : 'iframe')
+  return config.mode ?? 'iframe'
 }
 ```
 
-- **Desktop → iframe/modal.** A backdrop-dismissible overlay, isolated in
-  Shadow DOM so neither your page's CSS nor Klappay's leaks across the
-  boundary (see `core/iframe.ts`).
-- **Mobile → popup.** Detected by user agent (`Android|iPhone|iPad|iPod`),
-  mirroring `klap-one`'s own `web/src/lib/is-mobile.ts` heuristic exactly.
-  Mobile defaults to a popup because whether a backgrounded iframe's
-  WalletConnect relay connection survives the OS switching to the wallet
-  app and back hasn't been verified — a top-level popup tab doesn't have
-  that risk.
+**iframe/modal, on every device.** A backdrop-dismissible overlay,
+isolated in Shadow DOM so neither your page's CSS nor Klappay's leaks
+across the boundary (see `core/iframe.ts`).
+
+Mobile used to default to a popup instead, out of a concern that a
+backgrounded iframe's WalletConnect relay connection might not survive
+the OS switching to the wallet app and back. That turned out not to be a
+real iframe-vs-popup distinction: a browser freezes an entire backgrounded
+tab's frame tree together (confirmed against Chrome's own Page Lifecycle
+behavior) — a popup tab gets exactly as frozen as an iframe embedded in
+the merchant's own tab does, the moment the whole browser goes to the
+background. What actually matters is `onReconnecting` (see
+[Protocol & security](/protocol) and [Errors](/errors)): `one-id` detects
+the relay connection dropping when the payer returns, retries it, and
+falls back to an in-checkout retry affordance if that fails — on
+*both* rendering modes, since the exposure is identical either way.
 
 Pass `mode: 'iframe' | 'popup'` in config (or the `mode` /
 `data-klappay-one-mode` attribute) to force one or the other regardless of
@@ -111,7 +118,6 @@ listener comes off `document` again the moment the modal closes.
 
 ## See it running
 
-Every app in [Examples](/examples) uses the default device-based mode
-selection (no `mode` override) — open one on desktop and on a phone (or a
-mobile device emulator) to see the iframe/modal and popup paths side by
-side.
+Every app in [Examples](/examples) uses the default (no `mode` override)
+— open one to see the iframe/modal path, or pass `mode: 'popup'` (or
+`mode="popup"` on the markup entry points) to see the popup path instead.

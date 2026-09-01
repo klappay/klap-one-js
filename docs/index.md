@@ -29,8 +29,8 @@ features:
   - title: Any other framework
     details: The core is a framework-agnostic Web Component — Vue, Svelte, Angular, or plain HTML all use the exact same element.
     link: /frameworks
-  - title: iframe or popup, picked for you
-    details: Desktop defaults to an iframe/modal, mobile to a popup — with an automatic iframe-to-popup fallback if a merchant CSP blocks the frame.
+  - title: iframe by default, popup on request
+    details: An automatic iframe-to-popup fallback if a merchant CSP blocks the frame, plus onReconnecting if the payer backgrounds the tab to approve in their wallet app and comes back.
     link: /modes
   - title: Never a proof of payment
     details: onSuccess is a UX signal only — real fulfillment comes from Klappay Core's charge.confirmed webhook. The docs explain exactly why.

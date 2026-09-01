@@ -41,7 +41,8 @@ interface KlappayOneConfig {
   onReady?: () => void
   onSuccess?: (result: PaymentResult) => void
   onError?: (error: KlappayOneError) => void
-  onCancel?: () => void
+  onCancel?: (reason: 'user' | 'closed') => void
+  onReconnecting?: (state: 'started' | 'recovered' | 'failed') => void
 }
 ```
 
@@ -50,11 +51,12 @@ interface KlappayOneConfig {
 | `chargeId` | Required. The `Charge` this checkout is for — created ahead of time on your backend. |
 | `origin` | Required. Which Klappay origin to open — no default, since sandbox and production point at different hosts. |
 | `locale` | Forwarded to the checkout. |
-| `mode` | `'iframe'` \| `'popup'` — forces a mode instead of the [device default](/modes). |
+| `mode` | `'iframe'` \| `'popup'` — forces a mode instead of the [iframe default](/modes). |
 | `onReady` | Fires once the popup/iframe signals it has loaded (`klappay:ready`). Useful for hiding a loading spinner over the trigger button. |
 | `onSuccess` | Fires with a `PaymentResult` once the payer completes payment. **Not proof of payment** — see [Protocol & security](/protocol#onsuccess-is-a-ux-signal-never-proof-of-payment). |
 | `onError` | Fires with a `KlappayOneError` — see [Errors](/errors) for every code. |
 | `onCancel` | Fires when the payer closes the popup/iframe without completing payment, by any means — an explicit Cancel button inside the checkout, the browser's native close button, alt-F4, swiping away a mobile popup. |
+| `onReconnecting` | Fires when the payer returns from backgrounding the tab/app (e.g. switching to their wallet app to approve, then coming back) and `one-id` has to check whether its WalletConnect relay connection survived — `'started'` while it retries, then `'recovered'` or `'failed'`. Purely informational, safe to ignore; never fires after a terminal `onSuccess`/`onError`/`onCancel`. See [Errors](/errors#onreconnecting-is-not-an-error-either). |
 
 ## `PaymentResult`
 

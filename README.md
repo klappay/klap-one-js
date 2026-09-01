@@ -1,9 +1,9 @@
 # @klappay/one
 
 The embeddable payment button for Klappay One. Drop it on any page — it
-opens a modal (an iframe, on desktop) or a popup (mobile) that handles
-identity, wallet connection, and payment approval entirely on Klappay's
-own origin, then reports the result back to you.
+opens a modal (an iframe, by default) or a popup that handles identity,
+wallet connection, and payment approval entirely on Klappay's own origin,
+then reports the result back to you.
 
 ## Install
 
@@ -39,7 +39,7 @@ is a moving target and can't carry a fixed hash.
 Both are wired up automatically once the script loads — no JavaScript
 required for either. Both also accept `mode="iframe"` / `mode="popup"`
 (`data-klappay-one-mode` for the plain button) to force a mode instead of
-the mobile/desktop default.
+the iframe default.
 
 ### Programmatic
 
@@ -59,7 +59,7 @@ const klappayOne = createKlappayOne({
 klappayOne.open()
 ```
 
-Defaults to an iframe/modal on desktop and a popup on mobile — pass
+Defaults to an iframe/modal on every device — pass
 `mode: 'iframe' | 'popup'` to force one or the other.
 
 ### React

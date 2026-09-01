@@ -84,6 +84,12 @@ describe('openIframe', () => {
     expect(getFrame()?.src).toBe('https://one.klappay.com/id/?chargeId=ch_123')
   })
 
+  it('allows storage-access so one-id can call requestStorageAccess()', () => {
+    open()
+
+    expect(getFrame()?.allow).toBe('storage-access')
+  })
+
   it('updates the iframe height via resize()', () => {
     const handle = open()
 

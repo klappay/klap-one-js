@@ -19,7 +19,7 @@ is forwarded verbatim.
 
 | Code | When | Where |
 | --- | --- | --- |
-| `POPUP_BLOCKED` | `window.open()` returned `null`, or the returned window is already `.closed` — the browser's popup blocker stepped in. Only reachable on the popup path (mobile default, or `mode: 'popup'`). | `core/klappay-one.ts` |
+| `POPUP_BLOCKED` | `window.open()` returned `null`, or the returned window is already `.closed` — the browser's popup blocker stepped in. Only reachable on the popup path (`mode: 'popup'`, or the [automatic iframe→popup fallback](/modes#the-automatic-iframe-popup-fallback)). | `core/klappay-one.ts` |
 | `FRAME_TIMEOUT` | No `klappay:ready` message arrived within 10 seconds. On the iframe path, this only fires *after* the [automatic popup fallback](/modes#the-automatic-iframe-popup-fallback) also times out — a CSP blocking the frame doesn't stop there, it retries as a popup first. | `core/klappay-one.ts` / `core/bridge.ts` |
 
 ```ts
@@ -58,6 +58,19 @@ Closing the popup/iframe without completing payment — by any means, see
 [iframe vs. popup](/modes) — fires `onCancel`, never `onError`. There's no
 `code` for "the payer changed their mind"; that's an expected outcome,
 not a failure one.
+
+## `onReconnecting` is not an error either
+
+Backgrounding the tab/app to approve in a wallet app, then coming back,
+can leave `one-id`'s WalletConnect relay connection dropped — mobile
+Safari in particular is known to close a backgrounded WebSocket
+connection after roughly a minute. `onReconnecting` fires `'started'`
+while `one-id` checks/retries that connection, then `'recovered'` or
+`'failed'`. None of these are errors or cancellations: `onError`/
+`onCancel` are unaffected either way, and a `'failed'` reconnect still
+leaves the checkout's own Cancel button and retry affordance as the way
+out, not something this package surfaces as a failure of its own. Safe to
+ignore entirely if you have no UI you want to update for it.
 
 ## See it running
 

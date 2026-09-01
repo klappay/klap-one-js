@@ -118,6 +118,14 @@ export function openIframe(url: string, onDismiss: () => void): IframeHandle {
   const frame = document.createElement('iframe')
   frame.className = 'frame'
   frame.src = url
+  // storage-access's default Permissions-Policy allowlist is already `*`
+  // (any nested iframe gets it with no `allow` needed), so this is
+  // defense-in-depth rather than a strict functional requirement — it
+  // keeps one-id's requestStorageAccess() call working even if a
+  // merchant page sets its own, more restrictive Permissions-Policy
+  // header (which this attribute alone can't override if the merchant
+  // denies it outright at that layer).
+  frame.allow = 'storage-access'
 
   backdrop.append(frame)
   shadow.append(style, backdrop)

@@ -1,6 +1,7 @@
 import { observeNewElements, wireExisting } from './ui/auto-wire'
 import { registerKlappayButton } from './ui/klappay-button'
 
+export type { ReconnectState } from './core/bridge'
 export { configure, createKlappayOne } from './core/klappay-one'
 export type { KlappayOne, KlappayOneConfig, KlappayOneError, PaymentResult } from './core/types'
 
