@@ -73,6 +73,7 @@ export function createKlappayOne(config: KlappayOneConfig): KlappayOne {
     const stopListening = listen(config.origin, requestId, {
       onReady: config.onReady,
       onPending: config.onPending,
+      onConfirming: config.onConfirming,
       onSuccess: (result) => {
         stop()
         config.onSuccess?.(result)
@@ -136,6 +137,7 @@ export function createKlappayOne(config: KlappayOneConfig): KlappayOne {
         frame.setDismissable(false)
         config.onPending?.()
       },
+      onConfirming: config.onConfirming,
       onSuccess: (result) => settleOnce(() => config.onSuccess?.(result)),
       onError: (error) => settleOnce(() => config.onError?.(error)),
       onCancel: (reason) => settleOnce(() => config.onCancel?.(reason)),

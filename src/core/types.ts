@@ -33,6 +33,11 @@ export interface KlappayOneConfig {
   // signal for a caller that wants to persist state ahead of a possible
   // reload/close.
   onPending?: () => void
+  // Fires once one-id has a txHash — the wallet responded and a
+  // transaction was sent, but Core hasn't confirmed it yet. Unlike
+  // onPending, there's now something real to persist and verify against
+  // Core independently of whatever happens to this checkout afterward.
+  onConfirming?: (data: { txHash: string; network: string }) => void
   onSuccess?: (result: PaymentResult) => void
   onError?: (error: KlappayOneError) => void
   // 'user' is a deliberate in-page Cancel click relayed over the bridge.

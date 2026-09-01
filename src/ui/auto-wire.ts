@@ -46,6 +46,9 @@ function wire(element: Element): void {
       onPending: () => {
         element.dispatchEvent(new CustomEvent('pending'))
       },
+      onConfirming: (data) => {
+        element.dispatchEvent(new CustomEvent('confirming', { detail: data }))
+      },
       onSuccess: (result) => {
         clearBusy()
         element.dispatchEvent(new CustomEvent('success', { detail: result }))

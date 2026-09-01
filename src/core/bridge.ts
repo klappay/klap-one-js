@@ -8,6 +8,7 @@ type BridgeMessage =
   | { type: 'klappay:ready'; requestId: string }
   | { type: 'klappay:resize'; requestId: string; height: number }
   | { type: 'klappay:pending'; requestId: string }
+  | { type: 'klappay:confirming'; requestId: string; txHash: string; network: string }
   | { type: 'klappay:success'; requestId: string; result: PaymentResult }
   | { type: 'klappay:error'; requestId: string; error: KlappayOneError }
   | { type: 'klappay:cancel'; requestId: string }
@@ -17,6 +18,7 @@ export const READY_TIMEOUT_MS = 10_000
 export interface BridgeHandlers {
   onReady?: () => void
   onPending?: () => void
+  onConfirming?: (data: { txHash: string; network: string }) => void
   onSuccess?: (result: PaymentResult) => void
   onError?: (error: KlappayOneError) => void
   // A bridge-sourced cancel only ever comes from the in-page Cancel
@@ -74,6 +76,9 @@ export function listen(
         return
       case 'klappay:pending':
         handlers.onPending?.()
+        return
+      case 'klappay:confirming':
+        handlers.onConfirming?.({ txHash: message.txHash, network: message.network })
         return
       case 'klappay:resize':
         handlers.onResize?.(message.height)

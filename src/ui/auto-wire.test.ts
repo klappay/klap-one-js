@@ -111,6 +111,22 @@ describe('auto-wire', () => {
     expect(klappayOneModule.createKlappayOne).toHaveBeenCalledTimes(2)
   })
 
+  it('dispatches a confirming DOM event with the txHash/network', () => {
+    document.body.innerHTML = `<button ${AUTO_WIRE_ATTRIBUTE}="ch_123" ${AUTO_WIRE_ORIGIN_ATTRIBUTE}="https://one.klappay.com">Pay</button>`
+    wireExisting()
+    const button = document.querySelector('button')
+    const onConfirming = vi.fn()
+    button?.addEventListener('confirming', onConfirming)
+
+    button?.click()
+    const passedConfig = vi.mocked(klappayOneModule.createKlappayOne).mock.calls[0]?.[0]
+    passedConfig?.onConfirming?.({ txHash: '0xabc', network: 'base' })
+
+    expect(onConfirming).toHaveBeenCalledWith(
+      expect.objectContaining({ detail: { txHash: '0xabc', network: 'base' } }),
+    )
+  })
+
   it('ignores a second click while a checkout is already in flight', () => {
     document.body.innerHTML = `<button ${AUTO_WIRE_ATTRIBUTE}="ch_123" ${AUTO_WIRE_ORIGIN_ATTRIBUTE}="https://one.klappay.com">Pay</button>`
     wireExisting()

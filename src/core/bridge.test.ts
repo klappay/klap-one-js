@@ -138,6 +138,21 @@ describe('listen', () => {
     stop()
   })
 
+  it('routes confirming to its handler', () => {
+    const onConfirming = vi.fn()
+    const stop = listen(klapOneOrigin, requestId, { onConfirming })
+
+    dispatch(klapOneOrigin, {
+      type: 'klappay:confirming',
+      requestId,
+      txHash: '0xabc',
+      network: 'base',
+    })
+
+    expect(onConfirming).toHaveBeenCalledWith({ txHash: '0xabc', network: 'base' })
+    stop()
+  })
+
   it('routes resize to its handler', () => {
     const onResize = vi.fn()
     const stop = listen(klapOneOrigin, requestId, { onResize })

@@ -239,6 +239,9 @@ export class KlappayButtonElement extends KlappayButtonBase {
       onPending: () => {
         this.dispatchEvent(new CustomEvent('pending'))
       },
+      onConfirming: (data) => {
+        this.dispatchEvent(new CustomEvent('confirming', { detail: data }))
+      },
       onSuccess: (result) => {
         reenable()
         this.dispatchEvent(new CustomEvent('success', { detail: result }))

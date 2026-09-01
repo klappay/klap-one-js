@@ -30,6 +30,7 @@ type BridgeMessage =
   | { type: 'klappay:ready'; requestId: string }
   | { type: 'klappay:resize'; requestId: string; height: number }
   | { type: 'klappay:pending'; requestId: string }
+  | { type: 'klappay:confirming'; requestId: string; txHash: string; network: string }
   | { type: 'klappay:success'; requestId: string; result: PaymentResult }
   | { type: 'klappay:error'; requestId: string; error: { code: string; message: string } }
   | { type: 'klappay:cancel'; requestId: string }
@@ -41,6 +42,16 @@ other payload yet. It exists purely so an integrator can persist "a
 payment attempt is underway" ahead of a possible reload/close; `onPending`
 is not a terminal outcome and doesn't re-enable the button the way
 `onSuccess`/`onError`/`onCancel` do.
+
+`klappay:confirming` is sent once the wallet has responded and a
+transaction was actually sent — `txHash`/`network` are both real and
+verifiable at this point, even though Core hasn't confirmed the payment
+yet. Like `onPending`, it isn't a terminal outcome. Unlike `onPending`, an
+integrator can safely treat this one as authoritative enough to persist
+and auto-resume a "confirming" UI from — a `txHash` can be checked against
+Core independently of whatever happens to this checkout afterward
+(reload, tab close, even the popup/iframe itself disappearing), which
+isn't true yet at the `onPending` stage.
 
 `klappay:cancel` only ever means a deliberate in-page Cancel click — this
 package's own `onCancel` config callback receives a second possible

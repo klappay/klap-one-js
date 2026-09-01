@@ -185,6 +185,21 @@ describe('createKlappayOne — popup mode', () => {
     expect(stop).not.toHaveBeenCalled()
   })
 
+  it('forwards onConfirming without stopping or settling', () => {
+    const fakePopup = { closed: false } as Window
+    vi.mocked(popup.openPopup).mockReturnValue(fakePopup)
+    vi.mocked(popup.isPopupClosed).mockReturnValue(false)
+    const stop = vi.fn()
+    vi.mocked(bridge.listen).mockReturnValue(stop)
+    const onConfirming = vi.fn()
+
+    createKlappayOne({ ...config, onConfirming }).open()
+    capturedHandlers().onConfirming?.({ txHash: '0xabc', network: 'base' })
+
+    expect(onConfirming).toHaveBeenCalledWith({ txHash: '0xabc', network: 'base' })
+    expect(stop).not.toHaveBeenCalled()
+  })
+
   it('calls onCancel when the popup is closed without a bridge message', () => {
     const fakePopup = { closed: false } as Window
     vi.mocked(popup.openPopup).mockReturnValue(fakePopup)
@@ -314,6 +329,20 @@ describe('createKlappayOne — iframe mode', () => {
 
     expect(onPending).toHaveBeenCalledTimes(1)
     expect(frame.setDismissable).toHaveBeenCalledWith(false)
+    expect(frame.close).not.toHaveBeenCalled()
+  })
+
+  it('forwards onConfirming without disabling dismissal or settling', () => {
+    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
+    vi.mocked(iframeModule.openIframe).mockReturnValue(frame)
+    vi.mocked(bridge.listen).mockReturnValue(vi.fn())
+    const onConfirming = vi.fn()
+
+    createKlappayOne({ ...config, onConfirming }).open()
+    capturedHandlers().onConfirming?.({ txHash: '0xabc', network: 'base' })
+
+    expect(onConfirming).toHaveBeenCalledWith({ txHash: '0xabc', network: 'base' })
+    expect(frame.setDismissable).not.toHaveBeenCalled()
     expect(frame.close).not.toHaveBeenCalled()
   })
 

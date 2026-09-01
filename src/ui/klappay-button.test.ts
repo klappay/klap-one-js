@@ -257,6 +257,22 @@ describe('klappay-button', () => {
     expect(button?.disabled).toBe(false)
   })
 
+  it('dispatches a confirming DOM event with the txHash/network, without re-enabling the button', () => {
+    const el = mount({ 'charge-id': 'ch_123', origin: 'https://one.klappay.com' })
+    const onConfirming = vi.fn()
+    el.addEventListener('confirming', onConfirming)
+    const button = el.shadowRoot?.querySelector('button')
+
+    button?.click()
+    const passedConfig = vi.mocked(klappayOneModule.createKlappayOne).mock.calls[0]?.[0]
+    passedConfig?.onConfirming?.({ txHash: '0xabc', network: 'base' })
+
+    expect(onConfirming).toHaveBeenCalledWith(
+      expect.objectContaining({ detail: { txHash: '0xabc', network: 'base' } }),
+    )
+    expect(button?.disabled).toBe(true)
+  })
+
   it('disables the button while a checkout is in flight and ignores a second click', () => {
     const el = mount({ 'charge-id': 'ch_123', origin: 'https://one.klappay.com' })
     const button = el.shadowRoot?.querySelector('button')
