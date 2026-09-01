@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { createKlappayOne } from '../core/klappay-one'
 import type {
+  KlappayButtonLabel,
   KlappayButtonSize,
   KlappayButtonVariant,
   KlappayOneConfig,
@@ -26,6 +27,7 @@ export interface KlappayButtonProps {
   locale?: string
   variant?: KlappayButtonVariant
   size?: KlappayButtonSize
+  label?: KlappayButtonLabel
   onSuccess?: (result: PaymentResult) => void
   onError?: (error: KlappayOneError) => void
   onCancel?: () => void
@@ -40,6 +42,7 @@ declare global {
         locale?: string
         variant?: KlappayButtonVariant
         size?: KlappayButtonSize
+        label?: KlappayButtonLabel
       }
     }
   }
@@ -81,6 +84,7 @@ export function KlappayButton(props: KlappayButtonProps): JSX.Element {
       locale={props.locale}
       variant={props.variant}
       size={props.size}
+      label={props.label}
     />
   )
 }

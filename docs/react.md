@@ -36,6 +36,7 @@ interface KlappayButtonProps {
   locale?: string
   variant?: KlappayButtonVariant
   size?: KlappayButtonSize
+  label?: KlappayButtonLabel
   onSuccess?: (result: PaymentResult) => void
   onError?: (error: KlappayOneError) => void
   onCancel?: () => void

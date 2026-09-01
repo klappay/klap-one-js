@@ -1,20 +1,27 @@
 import { createKlappayOne, getGlobalConfig } from '../core/klappay-one'
-import type { KlappayButtonSize, KlappayButtonVariant } from '../core/types'
+import type { KlappayButtonLabel, KlappayButtonSize, KlappayButtonVariant } from '../core/types'
 
 export const KLAPPAY_BUTTON_TAG = 'klappay-button'
 
 const VARIANTS: readonly KlappayButtonVariant[] = ['white', 'yellow', 'black']
 const SIZES: readonly KlappayButtonSize[] = ['sm', 'md', 'lg']
+const LABELS: readonly KlappayButtonLabel[] = ['full', 'short']
 const DEFAULT_VARIANT: KlappayButtonVariant = 'black'
 const DEFAULT_SIZE: KlappayButtonSize = 'md'
+const DEFAULT_LABEL: KlappayButtonLabel = 'full'
+
+const LABEL_TEXT: Record<KlappayButtonLabel, string> = {
+  full: 'Pay with Klappay One',
+  short: 'Klappay One',
+}
 
 const SIZE_STYLES: Record<
   KlappayButtonSize,
   { height: string; fontSize: string; padding: string; logoSize: string }
 > = {
-  sm: { height: '32px', fontSize: '13px', padding: '0 14px', logoSize: '14px' },
-  md: { height: '40px', fontSize: '14px', padding: '0 18px', logoSize: '16px' },
-  lg: { height: '48px', fontSize: '16px', padding: '0 24px', logoSize: '18px' },
+  sm: { height: '32px', fontSize: '13px', padding: '0 14px', logoSize: '18px' },
+  md: { height: '40px', fontSize: '14px', padding: '0 18px', logoSize: '21px' },
+  lg: { height: '48px', fontSize: '16px', padding: '0 24px', logoSize: '23px' },
 }
 
 // 40x40 downscales of ../../logo-white.svg, ../../logo-black.svg, and
@@ -69,6 +76,10 @@ function isSize(value: string): value is KlappayButtonSize {
   return (SIZES as string[]).includes(value)
 }
 
+function isLabel(value: string): value is KlappayButtonLabel {
+  return (LABELS as string[]).includes(value)
+}
+
 // Node (SSR/static generation) has no HTMLElement — falling back to a
 // plain class keeps this module importable there. The fallback is never
 // instantiated outside a browser: registerKlappayButton() below skips
@@ -117,11 +128,12 @@ const BUTTON_CSS = (() => {
 
 export class KlappayButtonElement extends KlappayButtonBase {
   static get observedAttributes(): string[] {
-    return ['variant', 'size', 'charge-id', 'origin']
+    return ['variant', 'size', 'label', 'charge-id', 'origin']
   }
 
   #button: HTMLButtonElement
   #logo: HTMLImageElement
+  #labelEl: HTMLSpanElement
   #busy = false
 
   constructor() {
@@ -134,23 +146,24 @@ export class KlappayButtonElement extends KlappayButtonBase {
     this.#logo.alt = ''
     this.#logo.setAttribute('aria-hidden', 'true')
 
-    const label = document.createElement('span')
-    label.textContent = 'Pay with Klappay'
+    this.#labelEl = document.createElement('span')
 
     this.#button = document.createElement('button')
     this.#button.type = 'button'
-    this.#button.append(this.#logo, label)
+    this.#button.append(this.#logo, this.#labelEl)
     this.#button.addEventListener('click', () => this.#handleClick())
 
     shadow.append(style, this.#button)
     this.#applyVariant()
     this.#applySize()
+    this.#applyLabel()
     this.#applyDisabled()
   }
 
   attributeChangedCallback(name: string): void {
     if (name === 'variant') this.#applyVariant()
     if (name === 'size') this.#applySize()
+    if (name === 'label') this.#applyLabel()
     if (name === 'charge-id' || name === 'origin') this.#applyDisabled()
   }
 
@@ -172,6 +185,15 @@ export class KlappayButtonElement extends KlappayButtonBase {
     this.setAttribute('size', value)
   }
 
+  get label(): KlappayButtonLabel {
+    const value = this.getAttribute('label') ?? ''
+    return isLabel(value) ? value : DEFAULT_LABEL
+  }
+
+  set label(value: KlappayButtonLabel) {
+    this.setAttribute('label', value)
+  }
+
   #applyVariant(): void {
     this.#button.setAttribute('data-variant', this.variant)
     this.#logo.src = VARIANT_LOGO_DATA_URI[this.variant]
@@ -179,6 +201,10 @@ export class KlappayButtonElement extends KlappayButtonBase {
 
   #applySize(): void {
     this.#button.setAttribute('data-size', this.size)
+  }
+
+  #applyLabel(): void {
+    this.#labelEl.textContent = LABEL_TEXT[this.label]
   }
 
   // Only checks the origin *attribute*, not a `configure()` call made after

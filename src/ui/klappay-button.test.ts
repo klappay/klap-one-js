@@ -50,7 +50,22 @@ describe('klappay-button', () => {
     expect(img?.getAttribute('alt')).toBe('')
     expect(img?.getAttribute('aria-hidden')).toBe('true')
     expect(img?.src).toContain('data:image/webp;base64,')
-    expect(button?.textContent).toContain('Pay with Klappay')
+    expect(button?.textContent).toContain('Pay with Klappay One')
+  })
+
+  it('switches to the short label text via the label attribute', () => {
+    const el = mount({ label: 'short' })
+    const button = el.shadowRoot?.querySelector('button')
+
+    expect(button?.textContent).toContain('Klappay One')
+    expect(button?.textContent).not.toContain('Pay with')
+  })
+
+  it('falls back to the full label for an unknown label value', () => {
+    const el = mount({ label: 'bogus' })
+    const button = el.shadowRoot?.querySelector('button')
+
+    expect(button?.textContent).toContain('Pay with Klappay One')
   })
 
   it('swaps the logo image when the variant changes, with a distinct logo per variant', () => {

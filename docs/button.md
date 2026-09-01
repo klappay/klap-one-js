@@ -16,6 +16,7 @@ own leaks across the boundary:
   origin="https://klap.one"
   variant="black"
   size="md"
+  label="full"
   locale="en"
   mode="iframe"
 ></klappay-button>
@@ -32,12 +33,13 @@ placeholder domain, not a real Klappay origin, so clicking opens nothing):
 | `origin` | Only if not [`configure()`'d](/getting-started#origin-one-way-or-another) | Which Klappay origin to open. |
 | `variant` | No | `white` \| `yellow` \| `black` — defaults to `black`. See [Styling](/styling). |
 | `size` | No | `sm` \| `md` \| `lg` — defaults to `md`. See [Styling](/styling). |
+| `label` | No | `full` (`"Pay with Klappay One"`) \| `short` (`"Klappay One"`) — defaults to `full`. |
 | `locale` | No | Forwarded to the checkout — falls back to `configure()`'s `locale`. |
 | `mode` | No | `iframe` \| `popup` — forces a mode instead of the [device default](/modes). |
 
-`variant`/`size` are reactive — changing either attribute after the element
-is already on the page (`el.setAttribute('variant', 'white')`) updates the
-rendered button immediately, via `attributeChangedCallback`.
+`variant`/`size`/`label` are reactive — changing any of them after the
+element is already on the page (`el.setAttribute('variant', 'white')`)
+updates the rendered button immediately, via `attributeChangedCallback`.
 
 ### Events
 

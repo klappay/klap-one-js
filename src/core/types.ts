@@ -1,5 +1,6 @@
 export type KlappayButtonVariant = 'white' | 'yellow' | 'black'
 export type KlappayButtonSize = 'sm' | 'md' | 'lg'
+export type KlappayButtonLabel = 'full' | 'short'
 
 // `code` is an open string, not a fixed union: most values (e.g.
 // `payment_failed`, `wallet_error`) come from one-id's own bridge and can
