@@ -19,7 +19,6 @@ const TRANSITION_EASING = 'cubic-bezier(0.16, 1, 0.3, 1)'
 export interface IframeHandle {
   close: () => void
   resize: (height: number) => void
-  setDismissable: (canDismiss: boolean) => void
 }
 
 // Built once at module load, not per open() call — the CSS only ever
@@ -94,26 +93,20 @@ const IFRAME_CSS = `
 
 // A modal overlay + <iframe>, isolated in Shadow DOM so neither the
 // merchant page's CSS nor ours can leak across the boundary — same
-// isolation reasoning as ui/klappay-button.ts. Dismissing via a backdrop
-// click reports as a cancel, same as closing the popup does.
-export function openIframe(url: string, onDismiss: () => void): IframeHandle {
+// isolation reasoning as ui/klappay-button.ts. The backdrop has no
+// click-to-dismiss — the only way out of the checkout is a real
+// success/error/cancel postMessage from inside the iframe, since one-id
+// is the only side allowed to render that affordance (see
+// docs/protocol.md's "never white-labeled" invariant).
+export function openIframe(url: string): IframeHandle {
   const host = document.createElement('div')
   const shadow = host.attachShadow({ mode: 'open' })
 
   const style = document.createElement('style')
   style.textContent = IFRAME_CSS
 
-  // Gated by setDismissable() below — once a payment attempt is past the
-  // point of no return (the wallet has been asked to sign/send), a
-  // backdrop click must not silently orphan it the way closing the modal
-  // otherwise would.
-  let dismissable = true
-
   const backdrop = document.createElement('div')
   backdrop.className = 'backdrop'
-  backdrop.addEventListener('click', (event) => {
-    if (event.target === backdrop && dismissable) onDismiss()
-  })
 
   const frame = document.createElement('iframe')
   frame.className = 'frame'
@@ -203,9 +196,6 @@ export function openIframe(url: string, onDismiss: () => void): IframeHandle {
     close,
     resize: (height) => {
       frame.style.height = `${height}px`
-    },
-    setDismissable: (canDismiss) => {
-      dismissable = canDismiss
     },
   }
 }

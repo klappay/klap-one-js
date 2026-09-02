@@ -124,10 +124,10 @@ export function createKlappayOne(config: KlappayOneConfig): KlappayOne {
       locale: config.locale,
     })
 
-    // A backdrop dismiss and a genuine bridge message can race (e.g. the
-    // dismiss click lands the same tick a cancel/success message arrives)
-    // — settled guards config's callbacks from ever firing twice for one
-    // checkout, no matter which trigger gets there first.
+    // The onTimeout→popup fallback below and a genuine bridge message can
+    // race (e.g. a late success/cancel lands the same tick the fallback
+    // fires) — settled guards config's callbacks from ever firing twice
+    // for one checkout, no matter which trigger gets there first.
     let settled = false
     function settleOnce(run: () => void): void {
       if (settled) return
@@ -136,17 +136,11 @@ export function createKlappayOne(config: KlappayOneConfig): KlappayOne {
       run()
     }
 
-    const frame = openIframe(url, () => settleOnce(() => config.onCancel?.('user')))
+    const frame = openIframe(url)
 
     const stopListening = listen(config.origin, requestId, {
       onReady: config.onReady,
-      // Not wrapped in settleOnce — this isn't a terminal outcome, and the
-      // payment is now past the point where a backdrop dismiss should be
-      // allowed to silently orphan it.
-      onPending: () => {
-        frame.setDismissable(false)
-        config.onPending?.()
-      },
+      onPending: config.onPending,
       onConfirming: config.onConfirming,
       onSuccess: (result) => settleOnce(() => config.onSuccess?.(result)),
       onError: (error) => settleOnce(() => config.onError?.(error)),

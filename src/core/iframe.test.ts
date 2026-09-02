@@ -4,8 +4,8 @@ import { type IframeHandle, openIframe } from './iframe'
 describe('openIframe', () => {
   let handles: IframeHandle[] = []
 
-  function open(url = 'https://one.klappay.com/id/', onDismiss = vi.fn()): IframeHandle {
-    const handle = openIframe(url, onDismiss)
+  function open(url = 'https://one.klappay.com/id/'): IframeHandle {
+    const handle = openIframe(url)
     handles.push(handle)
     return handle
   }
@@ -214,42 +214,12 @@ describe('openIframe', () => {
     vi.useRealTimers()
   })
 
-  it('calls onDismiss when the backdrop itself is clicked', () => {
-    const onDismiss = vi.fn()
-    open('https://one.klappay.com/id/', onDismiss)
+  it('ignores a click on the backdrop — there is no way to dismiss the modal from outside the iframe', () => {
+    open()
 
     getBackdrop()?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
-    expect(onDismiss).toHaveBeenCalledTimes(1)
-  })
-
-  it('does not call onDismiss when the iframe itself is clicked', () => {
-    const onDismiss = vi.fn()
-    open('https://one.klappay.com/id/', onDismiss)
-
-    getFrame()?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-
-    expect(onDismiss).not.toHaveBeenCalled()
-  })
-
-  it('ignores a backdrop click once setDismissable(false) is called', () => {
-    const onDismiss = vi.fn()
-    const handle = open('https://one.klappay.com/id/', onDismiss)
-
-    handle.setDismissable(false)
-    getBackdrop()?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-
-    expect(onDismiss).not.toHaveBeenCalled()
-  })
-
-  it('allows a backdrop click again once setDismissable(true) re-enables it', () => {
-    const onDismiss = vi.fn()
-    const handle = open('https://one.klappay.com/id/', onDismiss)
-
-    handle.setDismissable(false)
-    handle.setDismissable(true)
-    getBackdrop()?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-
-    expect(onDismiss).toHaveBeenCalledTimes(1)
+    expect(getFrame()).toBeTruthy()
+    expect(document.body.lastElementChild?.shadowRoot).toBeTruthy()
   })
 })

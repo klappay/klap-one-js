@@ -28,7 +28,6 @@ beforeEach(() => {
   vi.mocked(iframeModule.openIframe).mockReturnValue({
     close: vi.fn(),
     resize: vi.fn(),
-    setDismissable: vi.fn(),
   })
 })
 
@@ -273,7 +272,7 @@ describe('createKlappayOne — iframe mode', () => {
   }
 
   it('forwards onSuccess and closes the frame', () => {
-    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
+    const frame = { close: vi.fn(), resize: vi.fn() }
     vi.mocked(iframeModule.openIframe).mockReturnValue(frame)
     const stop = vi.fn()
     vi.mocked(bridge.listen).mockReturnValue(stop)
@@ -295,7 +294,7 @@ describe('createKlappayOne — iframe mode', () => {
   })
 
   it('resizes the frame on klappay:resize', () => {
-    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
+    const frame = { close: vi.fn(), resize: vi.fn() }
     vi.mocked(iframeModule.openIframe).mockReturnValue(frame)
     vi.mocked(bridge.listen).mockReturnValue(vi.fn())
 
@@ -305,25 +304,8 @@ describe('createKlappayOne — iframe mode', () => {
     expect(frame.resize).toHaveBeenCalledWith(640)
   })
 
-  it('calls onCancel and closes the frame when the backdrop is dismissed', () => {
-    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
-    let onDismiss: (() => void) | undefined
-    vi.mocked(iframeModule.openIframe).mockImplementation((_url, dismiss) => {
-      onDismiss = dismiss
-      return frame
-    })
-    vi.mocked(bridge.listen).mockReturnValue(vi.fn())
-    const onCancel = vi.fn()
-
-    createKlappayOne({ ...config, onCancel }).open()
-    onDismiss?.()
-
-    expect(frame.close).toHaveBeenCalledTimes(1)
-    expect(onCancel).toHaveBeenCalledWith('user')
-  })
-
-  it('forwards onPending and disables backdrop dismissal, without settling', () => {
-    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
+  it('forwards onPending without settling', () => {
+    const frame = { close: vi.fn(), resize: vi.fn() }
     vi.mocked(iframeModule.openIframe).mockReturnValue(frame)
     vi.mocked(bridge.listen).mockReturnValue(vi.fn())
     const onPending = vi.fn()
@@ -332,12 +314,11 @@ describe('createKlappayOne — iframe mode', () => {
     capturedHandlers().onPending?.()
 
     expect(onPending).toHaveBeenCalledTimes(1)
-    expect(frame.setDismissable).toHaveBeenCalledWith(false)
     expect(frame.close).not.toHaveBeenCalled()
   })
 
-  it('forwards onConfirming without disabling dismissal or settling', () => {
-    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
+  it('forwards onConfirming without settling', () => {
+    const frame = { close: vi.fn(), resize: vi.fn() }
     vi.mocked(iframeModule.openIframe).mockReturnValue(frame)
     vi.mocked(bridge.listen).mockReturnValue(vi.fn())
     const onConfirming = vi.fn()
@@ -346,12 +327,11 @@ describe('createKlappayOne — iframe mode', () => {
     capturedHandlers().onConfirming?.({ txHash: '0xabc', network: 'base' })
 
     expect(onConfirming).toHaveBeenCalledWith({ txHash: '0xabc', network: 'base' })
-    expect(frame.setDismissable).not.toHaveBeenCalled()
     expect(frame.close).not.toHaveBeenCalled()
   })
 
-  it('forwards onReconnecting without disabling dismissal, closing, or settling', () => {
-    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
+  it('forwards onReconnecting without closing or settling', () => {
+    const frame = { close: vi.fn(), resize: vi.fn() }
     vi.mocked(iframeModule.openIframe).mockReturnValue(frame)
     vi.mocked(bridge.listen).mockReturnValue(vi.fn())
     const onReconnecting = vi.fn()
@@ -360,59 +340,12 @@ describe('createKlappayOne — iframe mode', () => {
     capturedHandlers().onReconnecting?.('failed')
 
     expect(onReconnecting).toHaveBeenCalledWith('failed')
-    expect(frame.setDismissable).not.toHaveBeenCalled()
     expect(frame.close).not.toHaveBeenCalled()
   })
 
-  it('only forwards onCancel once when the backdrop dismiss fires twice for one click', () => {
-    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
-    let onDismiss: (() => void) | undefined
-    vi.mocked(iframeModule.openIframe).mockImplementation((_url, dismiss) => {
-      onDismiss = dismiss
-      return frame
-    })
-    vi.mocked(bridge.listen).mockReturnValue(vi.fn())
-    const onCancel = vi.fn()
-
-    createKlappayOne({ ...config, onCancel }).open()
-    onDismiss?.()
-    onDismiss?.()
-
-    expect(onCancel).toHaveBeenCalledTimes(1)
-  })
-
-  it('only forwards one outcome when a dismiss and a bridge message race', () => {
-    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
-    let onDismiss: (() => void) | undefined
-    vi.mocked(iframeModule.openIframe).mockImplementation((_url, dismiss) => {
-      onDismiss = dismiss
-      return frame
-    })
-    vi.mocked(bridge.listen).mockReturnValue(vi.fn())
-    const onCancel = vi.fn()
-    const onSuccess = vi.fn()
-
-    createKlappayOne({ ...config, onSuccess, onCancel }).open()
-    onDismiss?.()
-    capturedHandlers().onSuccess?.({
-      txHash: '0xabc',
-      walletAddress: '0xdef',
-      network: 'base-sepolia',
-      amount: '10.00',
-      confirmedAt: '2026-08-27T00:00:00.000Z',
-    })
-
-    expect(onCancel).toHaveBeenCalledTimes(1)
-    expect(onSuccess).not.toHaveBeenCalled()
-  })
-
-  it('only forwards one outcome when the race goes the other way (message, then dismiss)', () => {
-    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
-    let onDismiss: (() => void) | undefined
-    vi.mocked(iframeModule.openIframe).mockImplementation((_url, dismiss) => {
-      onDismiss = dismiss
-      return frame
-    })
+  it('only forwards one outcome when two bridge messages arrive for one checkout', () => {
+    const frame = { close: vi.fn(), resize: vi.fn() }
+    vi.mocked(iframeModule.openIframe).mockReturnValue(frame)
     vi.mocked(bridge.listen).mockReturnValue(vi.fn())
     const onCancel = vi.fn()
     const onSuccess = vi.fn()
@@ -425,14 +358,14 @@ describe('createKlappayOne — iframe mode', () => {
       amount: '10.00',
       confirmedAt: '2026-08-27T00:00:00.000Z',
     })
-    onDismiss?.()
+    capturedHandlers().onCancel?.('user')
 
     expect(onSuccess).toHaveBeenCalledTimes(1)
     expect(onCancel).not.toHaveBeenCalled()
   })
 
   it('falls back to popup once when the iframe never signals ready', () => {
-    const frame = { close: vi.fn(), resize: vi.fn(), setDismissable: vi.fn() }
+    const frame = { close: vi.fn(), resize: vi.fn() }
     vi.mocked(iframeModule.openIframe).mockReturnValue(frame)
     vi.mocked(bridge.listen).mockReturnValueOnce(vi.fn())
     vi.mocked(popup.openPopup).mockReturnValue({ closed: false } as Window)

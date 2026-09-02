@@ -14,9 +14,9 @@ function resolveMode(config) {
 }
 ```
 
-**iframe/modal, on every device.** A backdrop-dismissible overlay,
-isolated in Shadow DOM so neither your page's CSS nor Klappay's leaks
-across the boundary (see `core/iframe.ts`).
+**iframe/modal, on every device.** A modal overlay, isolated in Shadow
+DOM so neither your page's CSS nor Klappay's leaks across the boundary
+(see `core/iframe.ts`).
 
 Mobile used to default to a popup instead, out of a concern that a
 backgrounded iframe's WalletConnect relay connection might not survive
@@ -66,17 +66,20 @@ alt-F4, swiping it away on mobile. `createKlappayOne()` polls
 OAuth-popup libraries use) and fires `onCancel` the moment it detects the
 popup is gone, even if no `klappay:cancel` message ever arrived.
 
-## Dismissing the iframe
+## Closing the iframe
 
-Clicking the semi-transparent backdrop behind the iframe reports as a
-cancel, same as closing a popup does — `event.target === backdrop` is
-checked so clicks that land on the iframe itself (or bubble from inside
-it, which they can't, being cross-origin) never trigger a false dismiss.
+The backdrop behind the iframe has no click-to-dismiss, and there's no
+Escape-key handling either — the only way out of an iframe checkout is a
+real `success`/`error`/`cancel` `postMessage` from inside it. `one-id` is
+a different origin whose content this package never controls (see
+[Protocol & security](/protocol)'s "never white-labeled" invariant), so
+it's on `one-id` to always render its own in-page Cancel button — a
+payer is never left with no way out.
 
-A backdrop-dismiss click and a genuine `postMessage` (a real `success`/
-`error`/`cancel` arriving the same tick) can race — a `settled` guard
-inside `openViaIframe()` makes sure your config's callbacks fire exactly
-once per checkout no matter which trigger wins that race.
+Two bridge messages can still race for one checkout (e.g. a late
+`success` lands the same tick the iframe → popup fallback above fires) —
+a `settled` guard inside `openViaIframe()` makes sure your config's
+callbacks fire exactly once no matter which one wins.
 
 ## Resizing
 
