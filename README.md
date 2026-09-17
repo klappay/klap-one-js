@@ -80,6 +80,11 @@ full walkthrough and `docs/protocol.md` for the popup/iframe embed and
 `postMessage` contract this package implements against). Runnable example
 apps live in [`examples/`](./examples).
 
+The site also publishes [`llms.txt`](https://js-one.klappay.com/llms.txt)
+and [`llms-full.txt`](https://js-one.klappay.com/llms-full.txt) —
+plain-text, LLM-friendly versions of these docs, regenerated on every
+deploy, for feeding an agent or MCP server.
+
 ## License
 
 MIT
