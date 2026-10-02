@@ -49,15 +49,15 @@ describe('klappay-button', () => {
 
     expect(img?.getAttribute('alt')).toBe('')
     expect(img?.getAttribute('aria-hidden')).toBe('true')
-    expect(img?.src).toContain('data:image/webp;base64,')
-    expect(button?.textContent).toContain('Pay with Klappay One')
+    expect(img?.src).toContain('data:image/svg+xml,')
+    expect(button?.textContent).toContain('Pay with Klap One')
   })
 
   it('switches to the short label text via the label attribute', () => {
     const el = mount({ label: 'short' })
     const button = el.shadowRoot?.querySelector('button')
 
-    expect(button?.textContent).toContain('Klappay One')
+    expect(button?.textContent).toContain('Klap One')
     expect(button?.textContent).not.toContain('Pay with')
   })
 
@@ -65,7 +65,7 @@ describe('klappay-button', () => {
     const el = mount({ label: 'bogus' })
     const button = el.shadowRoot?.querySelector('button')
 
-    expect(button?.textContent).toContain('Pay with Klappay One')
+    expect(button?.textContent).toContain('Pay with Klap One')
   })
 
   it('swaps the logo image when the variant changes, with a distinct logo per variant', () => {
@@ -74,24 +74,42 @@ describe('klappay-button', () => {
 
     const blackVariantLogo = img()?.getAttribute('src')
 
-    el.setAttribute('variant', 'yellow')
-    const yellowVariantLogo = img()?.getAttribute('src')
-
-    expect(yellowVariantLogo).not.toBe(blackVariantLogo)
-
     el.setAttribute('variant', 'white')
     const whiteVariantLogo = img()?.getAttribute('src')
 
     expect(whiteVariantLogo).not.toBe(blackVariantLogo)
-    expect(whiteVariantLogo).not.toBe(yellowVariantLogo)
   })
 
+  it.each([
+    { variant: 'black', capColor: '#F4F4F5', oppositeCapColor: '#09090B' },
+    { variant: 'white', capColor: '#09090B', oppositeCapColor: '#F4F4F5' },
+  ])(
+    'pairs the $variant variant with a logo whose cap contrasts with its background',
+    ({ variant, capColor, oppositeCapColor }) => {
+      const el = mount({ variant })
+      const svg = decodeURIComponent(
+        el.shadowRoot?.querySelector('button img')?.getAttribute('src') ?? '',
+      )
+
+      expect(svg).toContain(`fill='${capColor}'`)
+      expect(svg).not.toContain(`fill='${oppositeCapColor}'`)
+    },
+  )
+
   it('reflects variant/size attributes onto the inner button', () => {
-    const el = mount({ variant: 'yellow', size: 'lg' })
+    const el = mount({ variant: 'white', size: 'lg' })
     const button = el.shadowRoot?.querySelector('button')
 
-    expect(button?.getAttribute('data-variant')).toBe('yellow')
+    expect(button?.getAttribute('data-variant')).toBe('white')
     expect(button?.getAttribute('data-size')).toBe('lg')
+  })
+
+  it('treats the removed yellow variant as unknown, rendering the black one', () => {
+    const el = mount({ variant: 'yellow' })
+    const button = el.shadowRoot?.querySelector('button')
+
+    expect(button?.getAttribute('data-variant')).toBe('black')
+    expect(el.variant).toBe('black')
   })
 
   it('falls back to defaults for an unknown variant/size', () => {
@@ -111,13 +129,13 @@ describe('klappay-button', () => {
 
   it('accepts variant/size via property assignment, not just setAttribute', () => {
     const el = mount()
-    el.variant = 'yellow'
+    el.variant = 'white'
     el.size = 'lg'
 
     const button = el.shadowRoot?.querySelector('button')
-    expect(button?.getAttribute('data-variant')).toBe('yellow')
+    expect(button?.getAttribute('data-variant')).toBe('white')
     expect(button?.getAttribute('data-size')).toBe('lg')
-    expect(el.getAttribute('variant')).toBe('yellow')
+    expect(el.getAttribute('variant')).toBe('white')
     expect(el.getAttribute('size')).toBe('lg')
   })
 

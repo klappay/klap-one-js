@@ -3,10 +3,10 @@ import { openIframe } from './iframe'
 import { isPopupClosed, openPopup } from './popup'
 import type { KlappayOne, KlappayOneConfig } from './types'
 
-const POPUP_BLOCKED = { code: 'POPUP_BLOCKED', message: 'The Klappay One popup was blocked.' }
+const POPUP_BLOCKED = { code: 'POPUP_BLOCKED', message: 'The Klap One popup was blocked.' }
 const FRAME_TIMEOUT = {
   code: 'FRAME_TIMEOUT',
-  message: 'The Klappay One popup did not respond in time.',
+  message: 'The Klap One popup did not respond in time.',
 }
 
 // one-id only ever calls sendCancel() from an explicit in-page Cancel

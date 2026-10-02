@@ -1,6 +1,6 @@
 import type { ReconnectState } from './bridge'
 
-export type KlappayButtonVariant = 'white' | 'yellow' | 'black'
+export type KlappayButtonVariant = 'white' | 'black'
 export type KlappayButtonSize = 'sm' | 'md' | 'lg'
 export type KlappayButtonLabel = 'full' | 'short'
 

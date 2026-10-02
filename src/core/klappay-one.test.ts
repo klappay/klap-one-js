@@ -92,7 +92,7 @@ describe('createKlappayOne — popup mode', () => {
 
     expect(onError).toHaveBeenCalledWith({
       code: 'POPUP_BLOCKED',
-      message: 'The Klappay One popup was blocked.',
+      message: 'The Klap One popup was blocked.',
     })
     expect(bridge.listen).not.toHaveBeenCalled()
   })
@@ -258,7 +258,7 @@ describe('createKlappayOne — popup mode', () => {
     expect(stop).toHaveBeenCalledTimes(1)
     expect(onError).toHaveBeenCalledWith({
       code: 'FRAME_TIMEOUT',
-      message: 'The Klappay One popup did not respond in time.',
+      message: 'The Klap One popup did not respond in time.',
     })
   })
 })

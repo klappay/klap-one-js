@@ -3,7 +3,7 @@ import type { KlappayButtonLabel, KlappayButtonSize, KlappayButtonVariant } from
 
 export const KLAPPAY_BUTTON_TAG = 'klappay-button'
 
-const VARIANTS: readonly KlappayButtonVariant[] = ['white', 'yellow', 'black']
+const VARIANTS: readonly KlappayButtonVariant[] = ['white', 'black']
 const SIZES: readonly KlappayButtonSize[] = ['sm', 'md', 'lg']
 const LABELS: readonly KlappayButtonLabel[] = ['full', 'short']
 const DEFAULT_VARIANT: KlappayButtonVariant = 'black'
@@ -11,61 +11,39 @@ const DEFAULT_SIZE: KlappayButtonSize = 'md'
 const DEFAULT_LABEL: KlappayButtonLabel = 'full'
 
 const LABEL_TEXT: Record<KlappayButtonLabel, string> = {
-  full: 'Pay with Klappay One',
-  short: 'Klappay One',
+  full: 'Pay with Klap One',
+  short: 'Klap One',
 }
 
 const SIZE_STYLES: Record<
   KlappayButtonSize,
-  { height: string; fontSize: string; padding: string; logoSize: string }
+  { height: string; fontSize: string; padding: string; logoHeight: string }
 > = {
-  sm: { height: '32px', fontSize: '13px', padding: '0 14px', logoSize: '18px' },
-  md: { height: '40px', fontSize: '14px', padding: '0 18px', logoSize: '21px' },
-  lg: { height: '48px', fontSize: '16px', padding: '0 24px', logoSize: '23px' },
+  sm: { height: '32px', fontSize: '13px', padding: '0 14px', logoHeight: '14px' },
+  md: { height: '40px', fontSize: '14px', padding: '0 18px', logoHeight: '16px' },
+  lg: { height: '48px', fontSize: '16px', padding: '0 24px', logoHeight: '18px' },
 }
 
-// 40x40 downscales of ../../logo-white.svg, ../../logo-black.svg, and
-// ../../logo-black-white.svg, each rendered onto a 40x40 square canvas
-// respecting the source SVG's own (square) viewBox and layer positioning
-// — never by resizing the embedded raster in isolation, which is smaller
-// than the viewBox and off-center, and produces a non-square image that
-// then gets visibly stretched by the CSS below (width/height are equal).
-// The source SVGs just wrap a raster, far too heavy to inline at full res
-// for an icon rendered at 14-18px. Regenerate from those files if they
-// change.
-//
-// Encoded as lossless WebP, not PNG — ~37% smaller for the exact same
-// pixels at this size (verified: the only bytes that differ from the PNG
-// source are the RGB channels under fully transparent pixels, which never
-// render). Every browser this button ships to decodes WebP natively.
-//
-// logo-white has no black ink in it, so it stays legible on the black
-// variant's dark background; logo-black's black "clap" strokes need a
-// light background to read, so it's used on the white variant. Yellow
-// gets its own black-hand-with-white-strokes icon instead — it reads
-// better against the yellow/orange background than either single-tone
-// icon does.
-const LOGO_NO_BLACK_INK_DATA_URI =
-  'data:image/webp;base64,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'
-const LOGO_BLACK_INK_DATA_URI =
-  'data:image/webp;base64,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'
-
-const LOGO_BLACK_WHITE_DATA_URI =
-  'data:image/webp;base64,UklGRmwFAABXRUJQVlA4TGAFAAAvJ8AJEDXRjbZ/ld2ImZmZmZnhMjMzMzMcMzO3oCZ/wR4wx7/oKjO2wf6bamCMaJ3hFiEqwnA0J1YFvrljj0OHLuBmvw48ys6MI5egMgxNbPybcagKVtSBIvXgSKFLuNm/hQ23EAcEghDxfzMG0rYJ9y952yVBkm3aVti2bdu2jZGNmW2/923bto1n27Z58O7GBODD6B4wxcKSB5sCM5bCn0RwLHl5SCmwI+KjZj0C0SQG8SYFawVOrIEnSTxiqMlHW4HbSB7cBdjk4tuAkAJrLD4jAP3AO+iuQ9Z89ON07MuQzyR2GLAveBvLJ0vhiMZiOqS9go0GFI0EYT8VeiRwN/dORpA6BNQTPAhcS56rI5xzYwErWUzi3kBwH7A/SwqCRUiuYakXmMYCL8fcyDbSB4BpOKiQkhp0l/Z2iWZCfF8JVzDfbDuVlyv++/3BbSS6Yjhjs8jkzz1wG4nDZgoM4onQBXjcRdxIUG+w8GNEQfImfAaB5HL2rtConaxfB08xxtOhWC6EvhHzMtRK8alFzdTlquXCUJAU69m8FKMQemweBsql5lb4d/kV2xPBl1ZsKpDaxJzFnnw+taC2hYkxgJ3M3giXjtMKvK5fIhj0sMefboXgKQDBw4HVBJaRcYBHgqrwT6LyAFlLIBX0g/juEVMBtyGtIwXjXTyIJuSf69CdBkOQL4VnZVwcDCaxmcVL0ZnDIVvhW0cmn17nJyu4kE5WF7+exY97YNMCuDawY48HJnP6dC2pEwHMIw5FUbOcLUFWvH2O4t/r/HoqtXOgPGsgcvGaDdkbLBZBXYuhqQVwbPVbtjyRwvEmJEL520k8BdjAraeIR4HaODYKSLyCg99ncFRBwpb/rODRoGYK9sGC2gDTBzMBQn4aQc2lGOxlzSK5kAM/+gXxTI5GA4h8CTwtISucq53siab3KoRcCpymBt4KRwrnv2Y+nsfJbCIfYRLzISxSf7KQxi0sWXIe9CW41aBUzOVqKhUEtfBwer22ibriqb3czltMxERMTEQfFhA+F+pAE0lXobyOWevrWiJ0mDnIhjApSU4CZlO3gzFBesVSiFROJ9Nah9Zuxmw5H7oNFx14QUH8V4vE35nWJHWRHU/b/5uY9smuUs6d14M7YC3FfQJAENtMxETswMRd2ZRMgiEGgdN4d9jUhWYV6eMBvcFkWG5jLYz/g0Fnr0beRIN3U1LAi042xF83E+3H5E9o9Fwtd0MYDuCrxxDJbJ7XoZUHmwPADLADnIAQwKtRxb3jkTQtZ1kYolXsX4skIiLABvgAH4FJYBHoBlgR8cLh6xDPwiuRpi1QJZStZEeqsBaPASmYOwBywDSwC2wCn4A0L+I+WNLRyeb3QojZ0JtYy6K1Il7F8s1S0XuggTgHgAWQBmQAvj+8iHgnQn7seKSUlu1jItb3ehHHHNDr9ToREa9EZC+7PklELJmMLoYqxUjF0enu9naUoJRP0QbGpkF2SiajPAZYSawCt5YbEARKgKYf0DxSjEgYRpFUfeaRxESsxZ5U7uxHzR8BB+AnsAd0AJLoeL4evfC5s5gtwaT3QAwPr4HP1AL8gNVXgfOAqFvl3LECitO321VcnQhhExE7yDHBKCY7FO5zqA0YAHcAI4Db7VRB81g4oQlMJjKwtS5s5/diyBO2ENY40B7+hOKcBZ+JOruf6XYi4kUgElD2IpqnM1AM4d5S1vxYruZbA2+S+R9E6y7+RHKjHLdGxDrwXvS+9jNQ6UZENPf/Fkfl2cUc+rFQg7MCv+s/vFefAZoAEtBQQXS6LwLiR914bwP2wBZwD2BDnU6894H8d/716rkvATUg/Kjz/nGfAw=='
+// The kit's "small" cut of the Klap One symbol (16-24px), minified and
+// cropped to its own bounding box so it centers optically against the
+// label text. Each variant gets the cut the brand guidelines pair with that
+// background: -on-dark on black, the light cut on white.
+const LOGO_ON_DARK_DATA_URI =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='16 47.2 224 161.6' fill-rule='evenodd'%3E%3Cpath fill='%233F3F46' d='M240 144.1L240 131.2L128 195.9L16 131.2L16 144.1L128 208.8Z'/%3E%3Cpath fill='%2352525B' d='M197.2 96.1L197.2 121.1L196.9 125.2L195.9 129.5L194.3 133.6L192.2 137.5L189.6 141.1L186.5 144.5L183 147.7L179.2 150.6L175.1 153.2L170.6 155.5L165.9 157.6L160.9 159.4L155.8 161L150.4 162.3L145 163.3L139.4 164L133.7 164.4L128 164.6L122.3 164.4L116.6 164L111 163.3L105.6 162.3L100.2 161L95 159.4L90.1 157.6L85.4 155.5L80.9 153.2L76.8 150.6L73 147.7L69.5 144.5L66.4 141.1L63.8 137.5L61.7 133.6L60.1 129.5L59.1 125.2L58.8 121.1L58.8 96.1L16 120.8L128 185.5L240 120.8Z'/%3E%3Cpath fill='%23A1A1AA' d='M67.8 120.8L68 123.8L68.7 126.8L69.9 129.8L71.4 132.7L73.5 135.5L75.9 138.2L78.7 140.7L81.9 143.1L85.4 145.4L89.3 147.4L93.5 149.3L97.9 150.9L102.6 152.3L107.4 153.5L112.4 154.4L117.5 155L122.8 155.4L128 155.6L133.2 155.4L138.4 155L143.6 154.4L148.6 153.5L153.4 152.3L158.1 150.9L162.5 149.3L166.7 147.4L170.6 145.4L174.1 143.1L177.3 140.7L180.1 138.2L182.6 135.5L184.6 132.7L186.1 129.8L187.3 126.8L188 123.8L188.2 120.8L188.2 103.9L186.5 105.7L183 108.9L179.2 111.8L175.1 114.4L170.6 116.7L165.9 118.8L160.9 120.6L155.8 122.2L150.4 123.5L145 124.5L139.4 125.2L133.7 125.6L128 125.8L122.3 125.6L116.6 125.2L111 124.5L105.6 123.5L100.2 122.2L95 120.6L90.1 118.8L85.4 116.7L80.9 114.4L76.8 111.8L73 108.9L69.5 105.7L67.8 103.9Z'/%3E%3Cpath fill='%23F4F4F5' d='M170.6 57.4L166.7 55.4L162.5 53.5L158.1 51.9L153.4 50.5L148.6 49.4L143.6 48.4L138.4 47.8L133.2 47.4L128 47.2L122.8 47.4L117.5 47.8L112.4 48.4L107.4 49.4L102.6 50.5L97.9 51.9L93.5 53.5L89.3 55.4L85.4 57.4L81.9 59.7L78.7 62.1L75.9 64.6L73.5 67.3L71.4 70.1L69.9 73L68.7 76L68 79L67.8 82L68 85L68.7 88L69.9 91L71.4 93.9L73.5 96.7L75.9 99.4L78.7 101.9L81.9 104.3L85.4 106.6L89.3 108.6L93.5 110.5L97.9 112.1L102.6 113.5L107.4 114.7L112.4 115.6L117.5 116.2L122.8 116.6L128 116.8L133.2 116.6L138.4 116.2L143.6 115.6L148.6 114.7L153.4 113.5L158.1 112.1L162.5 110.5L166.7 108.6L170.6 106.6L174.1 104.3L177.3 101.9L180.1 99.4L182.6 96.7L184.6 93.9L186.1 91L187.3 88L188 85L188.2 82L188 79L187.3 76L186.1 73L184.6 70.1L182.6 67.3L180.1 64.6L177.3 62.1L174.1 59.7Z'/%3E%3C/svg%3E"
+const LOGO_ON_LIGHT_DATA_URI =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='16 47.2 224 161.6' fill-rule='evenodd'%3E%3Cpath fill='%2371717A' d='M240 144.1L240 131.2L128 195.9L16 131.2L16 144.1L128 208.8Z'/%3E%3Cpath fill='%23A1A1AA' d='M197.2 96.1L197.2 121.1L196.9 125.2L195.9 129.5L194.3 133.6L192.2 137.5L189.6 141.1L186.5 144.5L183 147.7L179.2 150.6L175.1 153.2L170.6 155.5L165.9 157.6L160.9 159.4L155.8 161L150.4 162.3L145 163.3L139.4 164L133.7 164.4L128 164.6L122.3 164.4L116.6 164L111 163.3L105.6 162.3L100.2 161L95 159.4L90.1 157.6L85.4 155.5L80.9 153.2L76.8 150.6L73 147.7L69.5 144.5L66.4 141.1L63.8 137.5L61.7 133.6L60.1 129.5L59.1 125.2L58.8 121.1L58.8 96.1L16 120.8L128 185.5L240 120.8Z'/%3E%3Cpath fill='%2352525B' d='M67.8 120.8L68 123.8L68.7 126.8L69.9 129.8L71.4 132.7L73.5 135.5L75.9 138.2L78.7 140.7L81.9 143.1L85.4 145.4L89.3 147.4L93.5 149.3L97.9 150.9L102.6 152.3L107.4 153.5L112.4 154.4L117.5 155L122.8 155.4L128 155.6L133.2 155.4L138.4 155L143.6 154.4L148.6 153.5L153.4 152.3L158.1 150.9L162.5 149.3L166.7 147.4L170.6 145.4L174.1 143.1L177.3 140.7L180.1 138.2L182.6 135.5L184.6 132.7L186.1 129.8L187.3 126.8L188 123.8L188.2 120.8L188.2 103.9L186.5 105.7L183 108.9L179.2 111.8L175.1 114.4L170.6 116.7L165.9 118.8L160.9 120.6L155.8 122.2L150.4 123.5L145 124.5L139.4 125.2L133.7 125.6L128 125.8L122.3 125.6L116.6 125.2L111 124.5L105.6 123.5L100.2 122.2L95 120.6L90.1 118.8L85.4 116.7L80.9 114.4L76.8 111.8L73 108.9L69.5 105.7L67.8 103.9Z'/%3E%3Cpath fill='%2309090B' d='M170.6 57.4L166.7 55.4L162.5 53.5L158.1 51.9L153.4 50.5L148.6 49.4L143.6 48.4L138.4 47.8L133.2 47.4L128 47.2L122.8 47.4L117.5 47.8L112.4 48.4L107.4 49.4L102.6 50.5L97.9 51.9L93.5 53.5L89.3 55.4L85.4 57.4L81.9 59.7L78.7 62.1L75.9 64.6L73.5 67.3L71.4 70.1L69.9 73L68.7 76L68 79L67.8 82L68 85L68.7 88L69.9 91L71.4 93.9L73.5 96.7L75.9 99.4L78.7 101.9L81.9 104.3L85.4 106.6L89.3 108.6L93.5 110.5L97.9 112.1L102.6 113.5L107.4 114.7L112.4 115.6L117.5 116.2L122.8 116.6L128 116.8L133.2 116.6L138.4 116.2L143.6 115.6L148.6 114.7L153.4 113.5L158.1 112.1L162.5 110.5L166.7 108.6L170.6 106.6L174.1 104.3L177.3 101.9L180.1 99.4L182.6 96.7L184.6 93.9L186.1 91L187.3 88L188 85L188.2 82L188 79L187.3 76L186.1 73L184.6 70.1L182.6 67.3L180.1 64.6L177.3 62.1L174.1 59.7Z'/%3E%3C/svg%3E"
 
 const VARIANT_LOGO_DATA_URI: Record<KlappayButtonVariant, string> = {
-  black: LOGO_NO_BLACK_INK_DATA_URI,
-  yellow: LOGO_BLACK_WHITE_DATA_URI,
-  white: LOGO_BLACK_INK_DATA_URI,
+  black: LOGO_ON_DARK_DATA_URI,
+  white: LOGO_ON_LIGHT_DATA_URI,
 }
 
 const VARIANT_STYLES: Record<
   KlappayButtonVariant,
   { background: string; color: string; border: string }
 > = {
-  white: { background: '#ffffff', color: '#111111', border: '1px solid #e5e5e5' },
-  yellow: { background: '#f2b90c', color: '#111111', border: 'none' },
-  black: { background: '#111111', color: '#ffffff', border: 'none' },
+  white: { background: '#ffffff', color: '#09090b', border: '1px solid #d4d4d8' },
+  black: { background: '#09090b', color: '#ffffff', border: 'none' },
 }
 
 function isVariant(value: string): value is KlappayButtonVariant {
@@ -98,26 +76,30 @@ const BUTTON_CSS = (() => {
   }).join('\n')
 
   const sizeRules = SIZES.map((size) => {
-    const { height, fontSize, padding, logoSize } = SIZE_STYLES[size]
+    const { height, fontSize, padding, logoHeight } = SIZE_STYLES[size]
     return `
       button[data-size="${size}"] { height: var(--klappay-button-height, ${height}); font-size: ${fontSize}; padding: ${padding}; }
-      button[data-size="${size}"] img { width: ${logoSize}; height: ${logoSize}; }
+      button[data-size="${size}"] img { width: auto; height: ${logoHeight}; }
     `
   }).join('\n')
 
   return `
+    :host { display: inline-block; max-width: 100%; }
     button {
       display: inline-flex;
+      max-width: 100%;
       align-items: center;
       justify-content: center;
       gap: 8px;
       border-radius: var(--klappay-radius, 8px);
-      font-family: var(--klappay-font-family, system-ui, sans-serif);
+      font-family: var(--klappay-font-family, Inter, system-ui, sans-serif);
       font-weight: 600;
+      white-space: nowrap;
       cursor: pointer;
       transition: opacity 0.15s ease;
     }
     button img { flex-shrink: 0; }
+    button span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
     button:hover { opacity: 0.9; }
     button:active { opacity: 0.8; }
     button:disabled { opacity: 0.6; cursor: not-allowed; }
