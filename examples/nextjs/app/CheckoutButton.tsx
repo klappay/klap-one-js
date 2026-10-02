@@ -21,7 +21,7 @@ export function CheckoutButton() {
   return (
     <div>
       <label>
-        Klappay One origin
+        Klap One origin
         <input
           value={origin}
           onChange={(e) => setOrigin(e.target.value)}
@@ -45,7 +45,7 @@ export function CheckoutButton() {
       <KlappayButton
         chargeId={applied.chargeId}
         origin={applied.origin}
-        variant="yellow"
+        variant="black"
         size="lg"
         onSuccess={(result: PaymentResult) => setStatus(`Paid! tx: ${result.txHash}`)}
         onError={(error: KlappayOneError) => setStatus(`Error: ${error.message}`)}

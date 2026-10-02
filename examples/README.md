@@ -27,7 +27,7 @@ uses. That means each example only ever creates charges under the
 per each example's own README, or charge creation fails.
 
 Every example also needs `KLAP_ONE_ORIGIN` (or its framework's public-env
-equivalent, e.g. `NEXT_PUBLIC_KLAP_ONE_ORIGIN`) — the Klappay origin
+equivalent, e.g. `NEXT_PUBLIC_KLAP_ONE_ORIGIN`) — the Klap origin
 `@klappay/one` opens. See each example's README for the exact variable
 name it reads.
 

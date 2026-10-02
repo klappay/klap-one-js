@@ -39,7 +39,7 @@ function onCancel() {
   <h1>Pay $25 in USDC</h1>
 
   <label>
-    Klappay One origin
+    Klap One origin
     <input bind:value={origin} placeholder="https://klap.one" />
   </label>
   <label>

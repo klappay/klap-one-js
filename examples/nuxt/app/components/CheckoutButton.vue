@@ -37,7 +37,7 @@ function onCancel(): void {
 <template>
   <div>
     <label>
-      Klappay One origin
+      Klap One origin
       <input v-model="origin" placeholder="https://klap.one" />
     </label>
     <label>

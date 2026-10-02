@@ -34,8 +34,8 @@ build instead).
 ## Prerequisites
 
 - Node 24+
-- A Klappay API key and base URL from your Klappay dashboard
-- The Klappay One origin for your environment (`KLAP_ONE_ORIGIN`)
+- A Klap API key and base URL from your Klap dashboard
+- The Klap One origin for your environment (`KLAP_ONE_ORIGIN`)
 
 ## Run it
 
