@@ -1,8 +1,8 @@
 # Styling
 
 Only the **button** this package renders is customizable — the popup/
-iframe content (`one-id`) never is. Klappay One isn't a white-label
-product: a payer needs to recognize "this is Klappay asking me for
+iframe content (`one-id`) never is. Klap One isn't a white-label
+product: a payer needs to recognize "this is Klap asking me for
 approval," the same way Apple Pay/Google Pay buttons only ever vary
 color/size, never the branding behind them. See
 [Protocol & security](/protocol#the-popupiframe-content-is-never-white-labeled)
@@ -11,18 +11,22 @@ limitation.
 
 ## `variant` and `size`
 
-Three color presets, three sizes — deliberately not an arbitrary color
-system (no `primaryColor: '#ff00ff'`):
+Two color presets, black and white (Klap One has no brand color), and
+three sizes — deliberately not an arbitrary color system (no `primaryColor: '#ff00ff'`):
 
 ```html
 <klappay-button charge-id="ch_123" variant="black" size="md"></klappay-button>
 ```
 
-| `variant` | Background | Text |
-| --- | --- | --- |
-| `white` (default background) | `#ffffff` | `#111111` |
-| `yellow` | `#f2b90c` | `#111111` |
-| `black` (default) | `#111111` | `#ffffff` |
+| `variant` | Background | Text | Logo |
+| --- | --- | --- | --- |
+| `black` (default) | `#09090b` | `#ffffff` | Small symbol, on-dark |
+| `white` | `#ffffff`, `#d4d4d8` border | `#09090b` | Small symbol, light |
+
+Each variant ships the Klap One symbol cut the brand guidelines pair with
+that background, so the button's "cap" always contrasts with what's
+behind it. Pick the variant that contrasts with your checkout page: `black`
+on a light page, `white` on a dark one.
 
 | `size` | Height |
 | --- | --- |
@@ -33,24 +37,23 @@ system (no `primaryColor: '#ff00ff'`):
 Both attributes are reactive — changing them after the element is mounted
 updates the rendered button immediately, no re-render/remount needed.
 
-**Try it live** — this is the real `<klappay-button>`, rendered by the
+**Try it live** (every combination is on the [Playground](/playground)) — this is the real `<klappay-button>`, rendered by the
 actual package, not a screenshot:
 
 <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin: 16px 0;">
   <KlappayButtonDemo variant="black" size="md" />
   <KlappayButtonDemo variant="white" size="md" />
-  <KlappayButtonDemo variant="yellow" size="md" />
 </div>
 
 (`origin`/`charge-id` above point at a placeholder domain, not a real
-Klappay origin — clicking opens nothing real, this is purely a rendering
+Klap origin — clicking opens nothing real, this is purely a rendering
 demo.)
 
 ## CSS custom properties across the Shadow DOM boundary
 
 `<klappay-button>` renders inside a Shadow DOM, isolating your page's CSS
 from leaking into the button (and vice versa) — a generic `button { ... }`
-rule on your page can't accidentally break Klappay's button just by
+rule on your page can't accidentally break Klap's button just by
 existing. A handful of CSS custom properties are the one thing
 deliberately exposed to cross that boundary, enough to fit the button into
 your page's design without opening the door to reimplementing the whole
@@ -69,7 +72,7 @@ klappay-button {
 | Property | Affects |
 | --- | --- |
 | `--klappay-radius` | Corner radius (default `8px`). |
-| `--klappay-font-family` | Font stack (default `system-ui, sans-serif`). |
+| `--klappay-font-family` | Font stack (default `Inter, system-ui, sans-serif`). |
 | `--klappay-button-height` | Overrides the `size` preset's height. |
 | `--klappay-background` | Overrides the `variant` preset's background. |
 | `--klappay-color` | Overrides the `variant` preset's text color. |
@@ -77,7 +80,7 @@ klappay-button {
 `--klappay-background`/`--klappay-color` still key off whichever `variant`
 you set — they override that variant's colors specifically, they don't
 replace the variant system with an unbounded one. If you need a color
-outside the three presets entirely, set `variant="black"` (or any) and
+outside the two presets entirely, set `variant="black"` (or any) and
 override both properties together, as in the example above.
 
 **Try it live** — the CSS custom properties from the snippet above,

@@ -7,7 +7,7 @@ under the hood — neither is a second implementation, both just build a
 ## `<klappay-button>`
 
 A real Custom Element (`customElements.define('klappay-button', ...)`),
-rendered inside a Shadow DOM so neither the host page's CSS nor Klappay's
+rendered inside a Shadow DOM so neither the host page's CSS nor Klap's
 own leaks across the boundary:
 
 ```html
@@ -23,17 +23,17 @@ own leaks across the boundary:
 ```
 
 That's the real component, rendered live (`origin` here points at a
-placeholder domain, not a real Klappay origin, so clicking opens nothing):
+placeholder domain, not a real Klap origin, so clicking opens nothing):
 
 <KlappayButtonDemo variant="black" size="md" />
 
 | Attribute | Required | Description |
 | --- | --- | --- |
 | `charge-id` | Yes | The `Charge` this checkout is for. |
-| `origin` | Only if not [`configure()`'d](/getting-started#origin-one-way-or-another) | Which Klappay origin to open. |
-| `variant` | No | `white` \| `yellow` \| `black` — defaults to `black`. See [Styling](/styling). |
+| `origin` | Only if not [`configure()`'d](/getting-started#origin-one-way-or-another) | Which Klap origin to open. |
+| `variant` | No | `white` \| `black` — defaults to `black`. See [Styling](/styling). |
 | `size` | No | `sm` \| `md` \| `lg` — defaults to `md`. See [Styling](/styling). |
-| `label` | No | `full` (`"Pay with Klappay One"`) \| `short` (`"Klappay One"`) — defaults to `full`. |
+| `label` | No | `full` (`"Pay with Klap One"`) \| `short` (`"Klap One"`) — defaults to `full`. |
 | `locale` | No | Forwarded to the checkout — falls back to `configure()`'s `locale`. |
 | `mode` | No | `iframe` \| `popup` — forces a mode instead of the [device default](/modes). |
 
@@ -78,14 +78,14 @@ in your markup — any clickable element works, not just `<button>`:
 
 ```html
 <button data-klappay-one="ch_123" data-klappay-one-origin="https://klap.one">
-  Pay with Klappay
+  Pay with Klap
 </button>
 ```
 
 | Attribute | Required | Description |
 | --- | --- | --- |
 | `data-klappay-one` | Yes | The `chargeId` — also what marks the element for auto-wiring. |
-| `data-klappay-one-origin` | Only if not [`configure()`'d](/getting-started#origin-one-way-or-another) | Which Klappay origin to open. |
+| `data-klappay-one-origin` | Only if not [`configure()`'d](/getting-started#origin-one-way-or-another) | Which Klap origin to open. |
 | `data-klappay-one-locale` | No | Falls back to `configure()`'s `locale`. |
 | `data-klappay-one-mode` | No | `iframe` \| `popup` — forces a mode instead of the [device default](/modes). |
 
@@ -118,7 +118,7 @@ modal opened later all get wired automatically, with no manual
 
 ## Choosing between the two
 
-Reach for `<klappay-button>` when you want Klappay's own button styling
+Reach for `<klappay-button>` when you want Klap's own button styling
 (pick a `variant`/`size` and move on) — it's the fastest path and the one
 [the button preview in `klap-app`](https://github.com/klappay/klap-one)
 matches exactly. Reach for `data-klappay-one` when the button already needs

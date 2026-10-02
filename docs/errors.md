@@ -14,7 +14,7 @@ handful you specifically care about, not an exhaustive list to switch over.
 
 ## Codes this package generates itself
 
-Only two — everything else in `onError` originates on Klappay's side and
+Only two — everything else in `onError` originates on Klap's side and
 is forwarded verbatim.
 
 | Code | When | Where |

@@ -1,17 +1,31 @@
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitepress'
 import llmstxt from 'vitepress-plugin-llms'
 
 export default defineConfig({
   title: '@klappay/one',
   description:
-    "Klappay One's embeddable payment button — a modal (iframe) or popup pointing at Klappay's hosted identity/wallet flow, relaying the result back via postMessage.",
+    "Klap One's embeddable payment button — a modal (iframe) or popup pointing at Klap's hosted identity/wallet flow, relaying the result back via postMessage.",
   cleanUrls: true,
   lastUpdated: true,
   appearance: 'force-dark',
-  head: [['link', { rel: 'icon', type: 'image/png', href: '/favicon.png' }]],
+  head: [
+    ['link', { rel: 'icon', href: '/favicon.ico', sizes: '48x48' }],
+    ['link', { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }],
+    ['link', { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' }],
+    ['link', { rel: 'manifest', href: '/site.webmanifest' }],
+    ['meta', { name: 'theme-color', content: '#09090B' }],
+  ],
 
   vite: {
     plugins: [llmstxt({ domain: 'https://js-one.klappay.com' })],
+    // Renders the demos from src/ rather than the built dist/, so
+    // `pnpm docs:dev` picks up button changes without a rebuild.
+    resolve: {
+      alias: {
+        '@klappay/one': fileURLToPath(new URL('../../src/index.ts', import.meta.url)),
+      },
+    },
   },
 
   vue: {
@@ -23,7 +37,7 @@ export default defineConfig({
   },
 
   themeConfig: {
-    logo: '/logo.png',
+    logo: { src: '/brand/klap-one-horizontal-on-dark.svg', alt: 'Klap One' },
 
     nav: [
       { text: 'Home', link: '/' },
@@ -49,6 +63,7 @@ export default defineConfig({
           { text: 'Other frameworks', link: '/frameworks' },
           { text: 'iframe vs. popup', link: '/modes' },
           { text: 'Styling', link: '/styling' },
+          { text: 'Playground', link: '/playground' },
           { text: 'Errors', link: '/errors' },
           { text: 'Protocol & security', link: '/protocol' },
           { text: 'Examples', link: '/examples' },
@@ -64,7 +79,7 @@ export default defineConfig({
 
     footer: {
       message: 'Docs live in ./docs — the source of truth for both the package and this site.',
-      copyright: 'MIT — Klappay',
+      copyright: 'MIT — Klap',
     },
   },
 })

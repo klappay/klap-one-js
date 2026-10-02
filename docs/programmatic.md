@@ -49,7 +49,7 @@ interface KlappayOneConfig {
 | Field | Description |
 | --- | --- |
 | `chargeId` | Required. The `Charge` this checkout is for — created ahead of time on your backend. |
-| `origin` | Required. Which Klappay origin to open — no default, since sandbox and production point at different hosts. |
+| `origin` | Required. Which Klap origin to open — no default, since sandbox and production point at different hosts. |
 | `locale` | Forwarded to the checkout. |
 | `mode` | `'iframe'` \| `'popup'` — forces a mode instead of the [iframe default](/modes). |
 | `onReady` | Fires once the popup/iframe signals it has loaded (`klappay:ready`). Useful for hiding a loading spinner over the trigger button. |

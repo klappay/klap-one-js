@@ -15,7 +15,7 @@ function resolveMode(config) {
 ```
 
 **iframe/modal, on every device.** A modal overlay, isolated in Shadow
-DOM so neither your page's CSS nor Klappay's leaks across the boundary
+DOM so neither your page's CSS nor Klap's leaks across the boundary
 (see `core/iframe.ts`).
 
 Mobile used to default to a popup instead, out of a concern that a
@@ -42,7 +42,7 @@ createKlappayOne({ chargeId, origin, mode: 'popup' })
 ## The automatic iframe → popup fallback
 
 If a merchant's Content-Security-Policy blocks `frame-src`/`child-src` for
-Klappay's origin, an iframe would otherwise sit there blank forever with
+Klap's origin, an iframe would otherwise sit there blank forever with
 no way for the payer to tell what went wrong. `openViaIframe()` guards
 against exactly that: if the frame never sends a `klappay:ready` message
 within `READY_TIMEOUT_MS` (10 seconds), it automatically retries the same

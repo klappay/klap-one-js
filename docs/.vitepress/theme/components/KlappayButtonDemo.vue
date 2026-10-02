@@ -3,10 +3,12 @@ import { onMounted } from 'vue'
 
 withDefaults(
   defineProps<{
-    variant?: 'white' | 'yellow' | 'black'
+    variant?: 'white' | 'black'
     size?: 'sm' | 'md' | 'lg'
+    label?: 'full' | 'short'
+    disabled?: boolean
   }>(),
-  { variant: 'black', size: 'md' },
+  { variant: 'black', size: 'md', label: 'full', disabled: false },
 )
 
 onMounted(() => {
@@ -16,9 +18,10 @@ onMounted(() => {
 
 <template>
   <klappay-button
-    charge-id="demo-charge"
+    :charge-id="disabled ? undefined : 'demo-charge'"
     origin="https://example.com"
     :variant="variant"
     :size="size"
+    :label="label"
   />
 </template>

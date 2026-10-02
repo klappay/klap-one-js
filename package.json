@@ -2,7 +2,7 @@
   "name": "@klappay/one",
   "version": "1.6.0",
   "license": "MIT",
-  "description": "Klappay One's embeddable payment button — opens the hosted identity/wallet popup (one-id) and relays the result via postMessage. Never touches a private key or a session token; framework-agnostic core with a thin React wrapper.",
+  "description": "Klap One's embeddable payment button — opens the hosted identity/wallet popup (one-id) and relays the result via postMessage. Never touches a private key or a session token; framework-agnostic core with a thin React wrapper.",
   "keywords": ["klap", "klappay", "payments", "crypto", "web3", "widget"],
   "repository": {
     "type": "git",
@@ -26,7 +26,7 @@
       "import": "./dist/react/index.js"
     }
   },
-  "files": ["dist", "LICENSE", "README.md", "logo.png"],
+  "files": ["dist", "LICENSE", "README.md"],
   "publishConfig": {
     "access": "public"
   },
@@ -38,8 +38,9 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "test": "vitest run",
-    "docs:dev": "pnpm build && vitepress dev docs",
-    "docs:build": "pnpm build && vitepress build docs",
+    "docs:dev": "vitepress dev docs",
+    "playground": "vitepress dev docs --open /playground",
+    "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "changeset": "changeset",
     "version": "changeset version",

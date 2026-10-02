@@ -3,11 +3,11 @@ layout: home
 
 hero:
   name: '@klappay/one'
-  text: The embeddable Klappay payment button
-  tagline: Drop it on any page — it opens a modal or popup that handles identity, wallet connection, and payment approval entirely on Klappay's own origin, then reports the result back to you.
+  text: The embeddable Klap payment button
+  tagline: Drop it on any page — it opens a modal or popup that handles identity, wallet connection, and payment approval entirely on Klap's own origin, then reports the result back to you.
   image:
-    src: /logo.png
-    alt: '@klappay/one'
+    src: /brand/klap-one-symbol-on-dark.svg
+    alt: Klap One
   actions:
     - theme: brand
       text: Getting started
@@ -18,13 +18,13 @@ hero:
 
 features:
   - title: Zero-JS drop-in
-    details: '<klappay-button charge-id="ch_123"> or a plain <button data-klappay-one="ch_123"> — both wire up automatically once the script loads.'
+    details: '&lt;klappay-button charge-id="ch_123"&gt; or a plain &lt;button data-klappay-one="ch_123"&gt; — both wire up automatically once the script loads.'
     link: /button
   - title: Programmatic API
     details: createKlappayOne(config).open() for full control over when the checkout opens and how results are handled.
     link: /programmatic
   - title: React
-    details: A thin <KlappayButton /> wrapper and a useKlappayOne() hook — no separate implementation, both call straight into the same core.
+    details: A thin &lt;KlappayButton /&gt; wrapper and a useKlappayOne() hook — no separate implementation, both call straight into the same core.
     link: /react
   - title: Any other framework
     details: The core is a framework-agnostic Web Component — Vue, Svelte, Angular, or plain HTML all use the exact same element.
@@ -33,7 +33,7 @@ features:
     details: An automatic iframe-to-popup fallback if a merchant CSP blocks the frame, plus onReconnecting if the payer backgrounds the tab to approve in their wallet app and comes back.
     link: /modes
   - title: Never a proof of payment
-    details: onSuccess is a UX signal only — real fulfillment comes from Klappay Core's charge.confirmed webhook. The docs explain exactly why.
+    details: onSuccess is a UX signal only — real fulfillment comes from Klap Core's charge.confirmed webhook. The docs explain exactly why.
     link: /protocol
   - title: Runnable examples
     details: Four full, clone-and-run apps — vanilla/no-bundler, Next.js, Nuxt, and SvelteKit — each rendering the button live against a charge ID you supply, backed by a real charge-creation API route.

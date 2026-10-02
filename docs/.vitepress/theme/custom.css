@@ -1,29 +1,39 @@
 .dark {
-  --vp-c-bg: #000000;
-  --vp-c-bg-alt: #000000;
-  --vp-c-bg-elv: #0a0a0a;
-  --vp-c-bg-soft: #111111;
-  --vp-c-divider: #262626;
-  --vp-c-gutter: #262626;
+  --vp-c-bg: #09090b;
+  --vp-c-bg-alt: #09090b;
+  --vp-c-bg-elv: #18181b;
+  --vp-c-bg-soft: #18181b;
+  --vp-c-divider: #27272a;
+  --vp-c-gutter: #27272a;
 
-  --vp-c-text-1: #ffffff;
-  --vp-c-text-2: #b3b3b3;
-  --vp-c-text-3: #808080;
+  --vp-c-text-1: #f4f4f5;
+  --vp-c-text-2: #a1a1aa;
+  --vp-c-text-3: #71717a;
 
-  --vp-c-brand-1: #ffffff;
-  --vp-c-brand-2: #e6e6e6;
-  --vp-c-brand-3: #cccccc;
-  --vp-c-brand-soft: rgba(255, 255, 255, 0.14);
+  --vp-c-brand-1: #f4f4f5;
+  --vp-c-brand-2: #d4d4d8;
+  --vp-c-brand-3: #a1a1aa;
+  --vp-c-brand-soft: rgba(244, 244, 245, 0.14);
 
-  --vp-nav-bg-color: #000000;
-  --vp-sidebar-bg-color: #000000;
-  --vp-c-bg-nav: #000000;
+  --vp-nav-bg-color: #09090b;
+  --vp-sidebar-bg-color: #09090b;
+  --vp-c-bg-nav: #09090b;
 
-  --vp-code-block-bg: #0a0a0a;
-  --vp-code-bg: #1a1a1a;
+  --vp-code-block-bg: #18181b;
+  --vp-code-bg: #27272a;
 
-  --vp-button-brand-bg: #ffffff;
-  --vp-button-brand-text: #000000;
-  --vp-button-brand-hover-bg: #cccccc;
-  --vp-button-brand-hover-text: #000000;
+  --vp-button-brand-bg: #f4f4f5;
+  --vp-button-brand-text: #09090b;
+  --vp-button-brand-hover-bg: #d4d4d8;
+  --vp-button-brand-hover-text: #09090b;
+  --vp-button-alt-bg: #27272a;
+  --vp-button-alt-hover-bg: #3f3f46;
+
+  --vp-home-hero-name-color: #f4f4f5;
+}
+
+/* The horizontal lockup's minimum legible width is 120px; VitePress's
+   default 24px logo height renders it at ~94px. */
+.VPNavBarTitle .logo {
+  height: 32px;
 }

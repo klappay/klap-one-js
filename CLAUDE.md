@@ -36,10 +36,10 @@ seems to need one should stop and reconsider the design instead:
   never partially trusted.
 - **The popup/iframe content is never white-labeled.** `variant`/`size`
   only ever style the *button* this package renders — `one-id`'s own
-  content is 100% Klappay's, always, on every integration. Don't add a
+  content is 100% Klap's, always, on every integration. Don't add a
   config option that changes what's inside the popup.
 - **`onSuccess` is a UX signal, never proof of payment.** A merchant's
-  real fulfillment must come from Klappay Core's own webhook
+  real fulfillment must come from Klap Core's own webhook
   (`charge.confirmed`), not this callback — see `docs/protocol.md`'s
   dedicated section. Don't design an API that makes the callback look
   like a safe place to release a product.

@@ -1,8 +1,15 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./docs/public/brand/klap-one-horizontal-on-dark.svg">
+    <img src="./docs/public/brand/klap-one-horizontal.svg" alt="Klap One" width="320">
+  </picture>
+</p>
+
 # @klappay/one
 
-The embeddable payment button for Klappay One. Drop it on any page — it
+The embeddable payment button for Klap One. Drop it on any page — it
 opens a modal (an iframe, by default) or a popup that handles identity,
-wallet connection, and payment approval entirely on Klappay's own origin,
+wallet connection, and payment approval entirely on Klap's own origin,
 then reports the result back to you.
 
 ## Install
@@ -33,7 +40,7 @@ is a moving target and can't carry a fixed hash.
 ### Your own button
 
 ```html
-<button data-klappay-one="ch_123">Pay with Klappay</button>
+<button data-klappay-one="ch_123">Pay with Klap</button>
 ```
 
 Both are wired up automatically once the script loads — no JavaScript
@@ -49,7 +56,7 @@ import { createKlappayOne } from '@klappay/one'
 const klappayOne = createKlappayOne({
   chargeId: 'ch_123',
   onSuccess: (result) => {
-    // UX signal only — confirm fulfillment via Klappay Core's webhook,
+    // UX signal only — confirm fulfillment via Klap Core's webhook,
     // never from this callback alone.
   },
   onError: (error) => console.error(error),

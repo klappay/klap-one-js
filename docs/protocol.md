@@ -11,7 +11,7 @@ invariants, written out in full — not defaults you can configure away.
   happens entirely inside `one-id` (a different origin, a different
   repo). This package never proposes or builds a transaction itself.
 - **A session token.** The payer's session lives in `one-id`'s own cookie,
-  on Klappay's origin — this package never reads or stores anything from
+  on Klap's origin — this package never reads or stores anything from
   that popup/iframe beyond the public `PaymentResult` it relays via
   `postMessage`.
 
@@ -107,7 +107,7 @@ function onMessage(event: MessageEvent): void {
 
 Two checks, both required, in this order:
 
-1. **`event.origin` must match the configured Klappay origin exactly.**
+1. **`event.origin` must match the configured Klap origin exactly.**
    A message from any other origin — including a malicious page that
    somehow gets a reference to your window — is silently dropped.
 2. **`event.data.requestId` must match the specific `open()` call in
@@ -140,11 +140,11 @@ anything this package's bridge validation can provide.
 ## The popup/iframe content is never white-labeled
 
 `variant`/`size` only ever style the **button** this package renders —
-`one-id`'s own content inside the popup/iframe is 100% Klappay's, always,
+`one-id`'s own content inside the popup/iframe is 100% Klap's, always,
 on every integration, with no merchant branding/logo anywhere in it. This
 isn't a missing feature; it's deliberate, the same reasoning Apple Pay and
 Google Pay apply to their own buttons: a payer needs to recognize "this is
-Klappay asking me for approval" regardless of which merchant embedded the
+Klap asking me for approval" regardless of which merchant embedded the
 button. See [Styling](/styling) for the actual customization surface.
 
 ## `onSuccess` is a UX signal, never proof of payment
@@ -155,7 +155,7 @@ the network can drop the confirmation, and a callback is trivially easy for
 an integrator to misuse as if it were authoritative. `onSuccess` exists for
 UX — show a "Paid!" screen, redirect to a thank-you page — while real
 fulfillment (releasing the product, marking an order paid in your own
-database) has to come from Klappay Core's own `charge.confirmed` webhook,
+database) has to come from Klap Core's own `charge.confirmed` webhook,
 the same webhook system Core uses for everything else.
 
 ```ts
@@ -163,7 +163,7 @@ the same webhook system Core uses for everything else.
 onSuccess: (result) => releaseProductDirectly(result.txHash)
 
 // RIGHT — onSuccess only drives UX; your backend releases the product
-// once it receives Klappay Core's charge.confirmed webhook
+// once it receives Klap Core's charge.confirmed webhook
 onSuccess: (result) => {
   showThankYouScreen(result.txHash)
   router.push(`/order/awaiting-confirmation?tx=${result.txHash}`)

@@ -1,12 +1,12 @@
 # Getting started
 
-`@klappay/one` is the embeddable payment button for Klappay One. It never
+`@klappay/one` is the embeddable payment button for Klap One. It never
 proposes a transaction, never signs anything, and never sees a private key
 or a session token — it just opens a modal (an iframe, by default) or a
-popup pointing at Klappay's own hosted identity/wallet flow, and relays
+popup pointing at Klap's own hosted identity/wallet flow, and relays
 the outcome back to your page via `postMessage`. Everything sensitive
 — OTP, wallet selection, WalletConnect, signing — happens entirely on
-Klappay's own origin. See [Protocol & security](/protocol) for exactly how
+Klap's own origin. See [Protocol & security](/protocol) for exactly how
 that boundary is enforced.
 
 ## Install
@@ -49,7 +49,7 @@ target and can't carry a fixed hash:
 ## A charge, not an amount
 
 Every checkout this button opens is tied to a `chargeId` — a `Charge`
-your own backend already created against Klappay Core (with
+your own backend already created against Klap Core (with
 [`@klappay/node`](https://node-sdk.klappay.com) or
 [`@klappay/checkout-kit`](https://node-checkout-sdk.klappay.com)). The
 button never takes an `amount`/`recipient`/`token` directly — the popup/
@@ -84,7 +84,7 @@ const charge = await klap.charges.create({
 
 ```html
 <button data-klappay-one="ch_123" data-klappay-one-origin="https://klap.one">
-  Pay with Klappay
+  Pay with Klap
 </button>
 ```
 
@@ -102,7 +102,7 @@ const klappayOne = createKlappayOne({
   chargeId: 'ch_123',
   origin: 'https://klap.one',
   onSuccess: (result) => {
-    // UX signal only — confirm fulfillment via Klappay Core's webhook,
+    // UX signal only — confirm fulfillment via Klap Core's webhook,
     // never from this callback alone. See /protocol.
   },
   onError: (error) => console.error(error),
@@ -117,7 +117,7 @@ shape, and [React](/react) for `<KlappayButton />` / `useKlappayOne()`.
 
 ## `origin`, one way or another
 
-Every entry point needs to know which Klappay origin to open — there's no
+Every entry point needs to know which Klap origin to open — there's no
 baked-in default, since sandbox and production point at different hosts.
 Pass it explicitly on every call, or set it once for the whole page:
 
