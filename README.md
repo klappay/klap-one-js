@@ -1,9 +1,5 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./docs/public/brand/klap-one-horizontal-on-dark.svg">
-    <img src="./docs/public/brand/klap-one-horizontal.svg" alt="Klap One" width="320">
-  </picture>
-</p>
+<img src="./docs/public/icon-512.png" alt="Klap One" width="80" />
+<img src="./docs/public/brand/klap-logo.png" alt="Klap" width="80" />
 
 # @klappay/one
 
