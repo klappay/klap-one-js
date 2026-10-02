@@ -37,7 +37,7 @@ export default defineConfig({
   },
 
   themeConfig: {
-    logo: { src: '/brand/klap-one-horizontal-on-dark.svg', alt: 'Klap One' },
+    logo: { src: '/brand/klap-one-symbol-small-on-dark.svg', alt: 'Klap One' },
 
     nav: [
       { text: 'Home', link: '/' },

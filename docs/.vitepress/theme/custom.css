@@ -31,9 +31,3 @@
 
   --vp-home-hero-name-color: #f4f4f5;
 }
-
-/* The horizontal lockup's minimum legible width is 120px; VitePress's
-   default 24px logo height renders it at ~94px. */
-.VPNavBarTitle .logo {
-  height: 32px;
-}
