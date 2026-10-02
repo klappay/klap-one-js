@@ -15,7 +15,10 @@
       "examples/*/.nuxt",
       "examples/*/.output",
       "examples/*/.svelte-kit",
-      "examples/*/build"
+      "examples/*/build",
+      ".claude",
+      ".serena",
+      ".mcp.json"
     ]
   },
   "formatter": {
