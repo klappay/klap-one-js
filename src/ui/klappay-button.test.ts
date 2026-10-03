@@ -50,51 +50,57 @@ describe('klappay-button', () => {
     expect(img?.getAttribute('alt')).toBe('')
     expect(img?.getAttribute('aria-hidden')).toBe('true')
     expect(img?.src).toContain('data:image/svg+xml,')
-    expect(button?.textContent).toContain('Pay with Klap One')
+    expect(button?.textContent).toContain('Pay with Klap')
   })
 
   it('switches to the short label text via the label attribute', () => {
     const el = mount({ label: 'short' })
     const button = el.shadowRoot?.querySelector('button')
 
-    expect(button?.textContent).toContain('Klap One')
-    expect(button?.textContent).not.toContain('Pay with')
+    expect(button?.textContent).toBe('Klap')
   })
 
   it('falls back to the full label for an unknown label value', () => {
     const el = mount({ label: 'bogus' })
     const button = el.shadowRoot?.querySelector('button')
 
-    expect(button?.textContent).toContain('Pay with Klap One')
-  })
-
-  it('swaps the logo image when the variant changes, with a distinct logo per variant', () => {
-    const el = mount({ variant: 'black' })
-    const img = () => el.shadowRoot?.querySelector('button img')
-
-    const blackVariantLogo = img()?.getAttribute('src')
-
-    el.setAttribute('variant', 'white')
-    const whiteVariantLogo = img()?.getAttribute('src')
-
-    expect(whiteVariantLogo).not.toBe(blackVariantLogo)
+    expect(button?.textContent).toContain('Pay with Klap')
   })
 
   it.each([
-    { variant: 'black', capColor: '#F4F4F5', oppositeCapColor: '#09090B' },
-    { variant: 'white', capColor: '#09090B', oppositeCapColor: '#F4F4F5' },
+    { variant: 'black', logoColor: '#D9D4CB', oppositeLogoColor: '#09090B' },
+    { variant: 'white', logoColor: '#09090B', oppositeLogoColor: '#D9D4CB' },
   ])(
-    'pairs the $variant variant with a logo whose cap contrasts with its background',
-    ({ variant, capColor, oppositeCapColor }) => {
+    'paints the $variant variant logo in the color that contrasts with its background',
+    ({ variant, logoColor, oppositeLogoColor }) => {
       const el = mount({ variant })
       const svg = decodeURIComponent(
         el.shadowRoot?.querySelector('button img')?.getAttribute('src') ?? '',
       )
 
-      expect(svg).toContain(`fill='${capColor}'`)
-      expect(svg).not.toContain(`fill='${oppositeCapColor}'`)
+      expect(svg).toContain(`fill='${logoColor}'`)
+      expect(svg).not.toContain(`fill='${oppositeLogoColor}'`)
     },
   )
+
+  it('paints the black variant label in the same brand color as its logo', () => {
+    const el = mount({ variant: 'black' })
+    const css = el.shadowRoot?.querySelector('style')?.textContent ?? ''
+
+    expect(css).toContain(
+      'button[data-variant="black"] { background: var(--klappay-background, #09090b); color: var(--klappay-color, #d9d4cb);',
+    )
+  })
+
+  it('swaps the logo color when the variant changes after mount', () => {
+    const el = mount({ variant: 'black' })
+    el.setAttribute('variant', 'white')
+
+    const svg = decodeURIComponent(
+      el.shadowRoot?.querySelector('button img')?.getAttribute('src') ?? '',
+    )
+    expect(svg).toContain("fill='#09090B'")
+  })
 
   it('reflects variant/size attributes onto the inner button', () => {
     const el = mount({ variant: 'white', size: 'lg' })

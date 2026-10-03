@@ -11,8 +11,7 @@ limitation.
 
 ## `variant` and `size`
 
-Two color presets, black and white (Klap One has no brand color), and
-three sizes — deliberately not an arbitrary color system (no `primaryColor: '#ff00ff'`):
+Two color presets, black and white, and three sizes — deliberately not an arbitrary color system (no `primaryColor: '#ff00ff'`):
 
 ```html
 <klappay-button charge-id="ch_123" variant="black" size="md"></klappay-button>
@@ -20,13 +19,12 @@ three sizes — deliberately not an arbitrary color system (no `primaryColor: '#
 
 | `variant` | Background | Text | Logo |
 | --- | --- | --- | --- |
-| `black` (default) | `#09090b` | `#ffffff` | Small symbol, on-dark |
-| `white` | `#ffffff`, `#d4d4d8` border | `#09090b` | Small symbol, light |
+| `black` (default) | `#09090b` | brand `#d9d4cb` | Klap "K", brand `#d9d4cb` |
+| `white` | `#ffffff`, `#d4d4d8` border | `#09090b` | Klap "K", ink `#09090b` |
 
-Each variant ships the Klap One symbol cut the brand guidelines pair with
-that background, so the button's "cap" always contrasts with what's
-behind it. Pick the variant that contrasts with your checkout page: `black`
-on a light page, `white` on a dark one.
+The logo and label share one color per variant (brand on black, ink on
+white), so both always contrast with the button behind them. Pick the variant that contrasts with your
+checkout page: `black` on a light page, `white` on a dark one.
 
 | `size` | Height |
 | --- | --- |

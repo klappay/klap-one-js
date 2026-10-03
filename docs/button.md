@@ -33,7 +33,7 @@ placeholder domain, not a real Klap origin, so clicking opens nothing):
 | `origin` | Only if not [`configure()`'d](/getting-started#origin-one-way-or-another) | Which Klap origin to open. |
 | `variant` | No | `white` \| `black` — defaults to `black`. See [Styling](/styling). |
 | `size` | No | `sm` \| `md` \| `lg` — defaults to `md`. See [Styling](/styling). |
-| `label` | No | `full` (`"Pay with Klap One"`) \| `short` (`"Klap One"`) — defaults to `full`. |
+| `label` | No | `full` (`"Pay with Klap"`) \| `short` (`"Klap"`) — defaults to `full`. |
 | `locale` | No | Forwarded to the checkout — falls back to `configure()`'s `locale`. |
 | `mode` | No | `iframe` \| `popup` — forces a mode instead of the [device default](/modes). |
 
