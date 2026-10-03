@@ -30,17 +30,17 @@ yarn add @klappay/one
 Or via `<script>`, no build step required:
 
 ```html
-<script src="https://js.klappay.com/one@1.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@klappay/one@2/dist/index.global.js"></script>
 ```
 
-Pin to a specific version instead of the `@1` major alias if you need a
+Pin to a specific version instead of the `@2` major alias if you need a
 frozen build — an exact version is also required if you want to add
-`integrity`/`crossorigin` for Subresource Integrity, since `@1` is a moving
+`integrity`/`crossorigin` for Subresource Integrity, since `@2` is a moving
 target and can't carry a fixed hash:
 
 ```html
 <script
-  src="https://js.klappay.com/one@1.2.3.js"
+  src="https://cdn.jsdelivr.net/npm/@klappay/one@2.0.0/dist/index.global.js"
   integrity="sha384-..."
   crossorigin
 ></script>

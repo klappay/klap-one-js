@@ -122,9 +122,11 @@ with no changeset. `.github/workflows/release.yml` opens/updates a
 trigger. **Never run or merge those proactively** — they need explicit
 go-ahead every time.
 
-The CDN copy (`js.klappay.com`) is a separate, manual step from the npm
-publish for now — nothing here auto-syncs the CDN URL to a new npm
-version yet.
+The `<script>` CDN is jsDelivr serving the published npm tarball
+(`cdn.jsdelivr.net/npm/@klappay/one@<major>/dist/index.global.js`) — no
+separate upload step, a new npm version is live there automatically. A
+major bump means updating the `@<major>` alias in `README.md` and
+`docs/getting-started.md` in the same change.
 
 ## Parallelize independent work
 
