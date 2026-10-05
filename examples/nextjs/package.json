@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@klappay/node": "^3.4.0",
+    "@klappay/node": "^5.1.4",
     "@klappay/one": "file:../..",
     "next": "^15.0.0",
     "react": "^19.0.0",
