@@ -1,4 +1,3 @@
-<img src="./docs/public/icon-512.png" alt="Klap One" width="80" />
 <img src="./docs/public/klap-logo.png" alt="Klap" width="80" />
 
 # @klappay/one
