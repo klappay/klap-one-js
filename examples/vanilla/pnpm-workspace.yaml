@@ -1,0 +1,5 @@
+allowBuilds:
+  esbuild: true
+minimumReleaseAgeExclude:
+  - '@klappay/node@5.1.4'
+  - '@klappay/types@6.0.0'
