@@ -47,7 +47,15 @@ a fixed union type here would mean every new error `one-id` introduces
 needs a matching release of `@klappay/one` just to keep types accurate —
 an open `string` avoids that coupling entirely.
 
-For a UI that wants to handle more than the two codes above, fall back to
+`payment_pending` means `one-id` stopped waiting while the payment was
+still being confirmed on-chain — not that it failed. The transaction was
+already sent (you received its `txHash` in `onConfirming`) and will
+usually settle on its own shortly; treat it like an in-flight payment
+and verify it against Klap Core with that `txHash` (or wait for your
+webhook) rather than telling the payer it failed. `payment_failed`, by
+contrast, means the payment was checked and did not go through.
+
+For a UI that wants to handle more than `POPUP_BLOCKED`/`FRAME_TIMEOUT`, fall back to
 displaying `error.message` (already a payer-facing string) for anything
 that isn't `POPUP_BLOCKED`/`FRAME_TIMEOUT` specifically, rather than
 hard-coding a `switch` over codes that may not exist yet.
