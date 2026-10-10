@@ -51,7 +51,8 @@ function isPaymentResult(value: unknown): value is PaymentResult {
     typeof result.walletAddress === 'string' &&
     typeof result.network === 'string' &&
     typeof result.amount === 'string' &&
-    typeof result.confirmedAt === 'string'
+    typeof result.confirmedAt === 'string' &&
+    (result.walletVerified === undefined || typeof result.walletVerified === 'boolean')
   )
 }
 

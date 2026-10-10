@@ -20,6 +20,7 @@ export interface PaymentResult {
   network: string
   amount: string
   confirmedAt: string
+  walletVerified?: boolean
 }
 
 export interface KlappayOneConfig {

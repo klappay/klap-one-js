@@ -55,6 +55,12 @@ and verify it against Klap Core with that `txHash` (or wait for your
 webhook) rather than telling the payer it failed. `payment_failed`, by
 contrast, means the payment was checked and did not go through.
 
+A payment Klap Core confirmed but Klap One couldn't tie to the payer's
+own wallet (a wallet paying through a relayer and a swap, for example)
+is not an error: it arrives through `onSuccess` with
+`walletVerified: false`, since the charge really is paid. See
+[`PaymentResult`](/programmatic#paymentresult).
+
 For a UI that wants to handle more than `POPUP_BLOCKED`/`FRAME_TIMEOUT`, fall back to
 displaying `error.message` (already a payer-facing string) for anything
 that isn't `POPUP_BLOCKED`/`FRAME_TIMEOUT` specifically, rather than

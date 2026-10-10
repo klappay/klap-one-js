@@ -67,6 +67,7 @@ interface PaymentResult {
   network: string
   amount: string
   confirmedAt: string
+  walletVerified?: boolean
 }
 ```
 
@@ -74,6 +75,15 @@ Every field here is public on-chain data by the time this fires — a
 transaction hash, a wallet address, which network, how much, and when it
 confirmed. None of it is a secret, and none of it is a substitute for your
 backend's own webhook-driven fulfillment.
+
+`walletVerified` is `true` when Klap One tied the payment to the payer's
+own wallet, and `false` when Klap Core confirmed the charge as paid by
+this transaction but none of the on-chain evidence names that wallet (a
+wallet paying through a relayer *and* a swap, for example). Either way
+the charge is paid, so `onSuccess` fires and the payer sees "Payment
+received" — you don't need to handle `false` differently unless you want
+to. An older `one-id` may omit the field; treat a missing value like
+`true` for UX purposes.
 
 ## `open()`
 

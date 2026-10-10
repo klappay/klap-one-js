@@ -54,6 +54,20 @@ Core independently of whatever happens to this checkout afterward
 (reload, tab close, even the popup/iframe itself disappearing), which
 isn't true yet at the `onPending` stage.
 
+`klappay:success` is sent once Klap Core has confirmed the charge as
+paid by this transaction. `result.walletVerified` says whether Klap One
+could also tie that payment to the payer's own wallet: Core reports
+the transaction's signer, the senders of the paying token transfers,
+and the ERC-4337 account whose user operation paid, and Klap One looks
+for the payer's wallet in any of them. That covers wallets that sign
+their own transaction, EIP-7702 wallets behind a gas-sponsoring
+relayer (MetaMask smart accounts) and ERC-4337 accounts. When none of
+them names the wallet (a relayer paying through a swap, or a swap from
+native ETH via a relayer, whose value moves through calls that leave no
+log) the payment is still a success, sent with `walletVerified: false`,
+never a `klappay:error`: telling a payer who paid that the payment
+failed would push them to pay twice. An older `one-id` omits the field.
+
 `klappay:reconnecting` is sent when `one-id` detects, after the payer
 returns from backgrounding the tab/app (switching to their wallet app to
 approve, then coming back), that its WalletConnect relay connection may

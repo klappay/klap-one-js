@@ -201,6 +201,45 @@ describe('listen', () => {
     stop()
   })
 
+  it('forwards walletVerified, including false for a payment Klap One could not tie to the wallet', () => {
+    const onSuccess = vi.fn()
+    const stop = listen(klapOneOrigin, requestId, { onSuccess })
+
+    const result = {
+      txHash: '0xabc',
+      walletAddress: '0xdef',
+      network: 'base-sepolia',
+      amount: '10.00',
+      confirmedAt: '2026-08-27T00:00:00.000Z',
+      walletVerified: false,
+    }
+    dispatch(klapOneOrigin, { type: 'klappay:success', requestId, result })
+
+    expect(onSuccess).toHaveBeenCalledWith(result)
+    stop()
+  })
+
+  it('ignores a klappay:success message whose walletVerified is not a boolean', () => {
+    const onSuccess = vi.fn()
+    const stop = listen(klapOneOrigin, requestId, { onSuccess })
+
+    dispatch(klapOneOrigin, {
+      type: 'klappay:success',
+      requestId,
+      result: {
+        txHash: '0xabc',
+        walletAddress: '0xdef',
+        network: 'base-sepolia',
+        amount: '10.00',
+        confirmedAt: '2026-08-27T00:00:00.000Z',
+        walletVerified: 'false',
+      },
+    })
+
+    expect(onSuccess).not.toHaveBeenCalled()
+    stop()
+  })
+
   it('ignores a klappay:success message with a malformed result', () => {
     const onSuccess = vi.fn()
     const stop = listen(klapOneOrigin, requestId, { onSuccess })
