@@ -68,6 +68,26 @@ log) the payment is still a success, sent with `walletVerified: false`,
 never a `klappay:error`: telling a payer who paid that the payment
 failed would push them to pay twice. An older `one-id` omits the field.
 
+`klappay:error` always carries a `code` and a human-readable `message`.
+`code` is one of:
+
+| Code | Sent when |
+|---|---|
+| `charge_load_failed` | `one-id` couldn't load the charge when it opened |
+| `charge_paid` | The charge is already `confirmed` |
+| `charge_partially_paid` | The charge is `partially_paid`: part of it arrived, the payer has to finish it outside Klap One |
+| `charge_not_payable` | The charge is `expired`, `underpaid` or in a status `one-id` doesn't know |
+| `payment_pending` | The wallet may have paid: a transaction was sent, a request may have reached the wallet, or the payer said they already approved it |
+| `payment_failed` | Core settled the payment as failed on-chain |
+| `wallet_error` | The wallet refused before anything could have been paid, or any other non-recoverable error |
+
+Only `wallet_error` and `charge_load_failed` mean nothing was paid and the
+payer can safely try again. On `payment_pending` the payment may still
+confirm, so an integrator shouldn't offer another way to pay the same
+charge until Core says otherwise. On `charge_paid` the charge is already
+settled. An older `one-id` sends only `charge_load_failed`,
+`payment_pending`, `payment_failed` and `wallet_error`.
+
 `klappay:reconnecting` is sent when `one-id` detects, after the payer
 returns from backgrounding the tab/app (switching to their wallet app to
 approve, then coming back), that its WalletConnect relay connection may
