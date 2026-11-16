@@ -7,6 +7,8 @@ opens a modal (an iframe, by default) or a popup that handles identity,
 wallet connection, and payment approval entirely on Klap's own origin,
 then reports the result back to you.
 
+Part of [Klap](https://klappay.com), the non-custodial crypto payments API.
+
 ## Install
 
 ```sh
